@@ -7,9 +7,19 @@ const char * libs_c17_00_cpt2g[100] = {
 	"0 bands1+2 processed entries M10",//0
 	"1 total bands 3",//1
 	"2 steps external loop ",//2
-	"3  ",	"4  ",	"5 ","6 ","7  ","8 ","9 ",
-	"10 ","11","12 ","13 ","14 ","15","16 ","17 ","18 ","19 ",
-	"20 ","21 ","22 ","23 ","24 ","25 ","26  ","27  ","28  ","29  ",	
+	"3 3 clues ",	
+	"4 6 clues ",	
+	"5 7p clues last ",
+	"6 active 6 clues",
+	"7 set b12 ",
+	"8 go b3",
+	"9 ",
+	"10 miss0 ",
+	"11 miss1 ",
+	"12 missmore", 
+	"13 missmore big","14 ","15","16 ","17 ","18 ","19 ",
+	"20 addg2", 
+	"21 addg3","22 ","23 ","24 ","25 ","26  ","27  ","28  ","29  ",	
 	"30 nb3 min",
 	"31 nb3 max",
 	"32 nb3 tot  ","33 ","34 ",
@@ -22,7 +32,15 @@ const char * libs_c17_00_cpt2g[100] = {
 	"45 ng3min",	
 	"46 ng3 max",
 	"47 ng3 tot","48 ","49 ",
-	"50 ","51","52 ","53 ","54 ","55 ",	"56 ","57 ","58 ","59 ",
+	"50 ",
+	"51 full","52 below",
+	"53 nfull<20",
+	"54 size 7",
+	"55 size 8",	
+	"56 size 9",
+	"57 size 10",
+	"58 size 11",
+	"59 ",
 	"60 ","61","62 ","63 ","64 ","65 ",	"66 ","67 ","68 ","69 ",
 	"70 ","71","72 ","73 ","74 ","75 ",	"76 ","77 ","78 ","79 ",
 	"80 ","81","82 ","83 ","84 ","85 ",	"86 ","87 ","88 ","89 ",
@@ -30,7 +48,7 @@ const char * libs_c17_00_cpt2g[100] = {
 
 };
 void Go_c17_00( ) {// p2 process
-	cout << "Go_c17_00 search batch 17 clues 656 566 " << endl;
+	cout << "Go_c17_00 search batch 17 clues  " << endl;
 	cout << sgo.vx[0] << " -v0- band 0_415" << endl;
 	cout << sgo.vx[2] << " -v2- skip first nnn restart after batch failure" << endl;
 	cout << sgo.vx[3] << " -v3- last entry number for this batch must be > vx[2]" << endl;

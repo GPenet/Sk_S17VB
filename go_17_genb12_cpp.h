@@ -233,6 +233,7 @@ void GEN_BANDES_12::ValidInitGang() {
 	memcpy(gangcols, cold, sizeof gangcols);
 }
 int GEN_BANDES_12::ValidBand2() {
+	if (g17b.aigstop)return 1;
 	myband2.InitBand2_3(it16_2, &zsol[27], pband2);
 	//_______________________ std process
 	if (modeb12 < 10) {
@@ -307,7 +308,7 @@ next:// erase previous fill and look for next
 		if (ir < 0) {//would be bug  did not come in enumeration
 			cerr << "gen band 3 invalid return Getmin" << endl;
 			return;
-		}
+		}	
 		int it16_3 = pband3.i416;
 		ib3check=i3t16 = t416_to_n6[it16_3];
 		if (sgo.vx[8] && i3t16 != sgo.vx[8]) goto next;
@@ -340,7 +341,7 @@ back:
 	if (nband3)		g17b.Start();// call the process for that entry
 }
 void GEN_BANDES_12::Find_band3B_pass1(int m10) {
-	BANDMINLEX::PERM pout;
+	//BANDMINLEX::PERM pout;
 	register int* crcb, bit;
 	nband3 = 0;
 	int* rd = rowdb3, * cd = cold, * bd = boxdb3; // to updates rows cols boxes
@@ -377,12 +378,13 @@ next_first:
 	rd[crcb[1]] ^= bit; cd[crcb[2]] ^= bit; bd[crcb[3]] ^= bit;
 	if (ii < 23) goto nextii;
 	// this is a valid band, check if canonical
-	int ir = bandminlex.Getmin(zs0, &pout, 0);
+	int ir = bandminlex.Getmin(zs0, &pband3, 0);
 	if (ir < 0) {//would be bug  did not come in enumeration
 		cerr << "gen band 3 invalid return Getmin" << endl;
 		return;
 	}
-	int it16_3 = pout.i416;
+	int it16_3 = pband3.i416;
+
 	i3t16 = t416_to_n6[it16_3];
 	//========================== morphs on b1b2 base test
 	if (n_auto_b1b2) {// still direct automorphism b1b2

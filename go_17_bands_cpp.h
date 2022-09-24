@@ -54,12 +54,14 @@ void STD_B416::MorphUas() {
 		}
 		tua[i] = ua | _popcnt32(ua) << 27;// store with count
 	}
+
 }
 void STD_B416::InitBand2_3(int i16, char * ze, BANDMINLEX::PERM & p
 ,int iband) {
 	i416 = i16;
 	dband = 27*iband;
 	strncpy(band, ze, 27);
+	band[27] = 0;
 	for (int i = 0; i < 27; i++) band0[i] = band[i] - '1';
 	// create the cell map in output
 	for (int i = 0; i < 3; i++) {
@@ -74,6 +76,7 @@ void STD_B3::InitBand3(int i16, char* ze, BANDMINLEX::PERM& p) {
 	InitBand2_3(i16, ze, p);
 	//memset(&guas, 0, sizeof guas);
 	memset(&g, 0, sizeof g);
+	ntguam = 0;
 	// setup minirows bit fields
 	for (int i = 0; i < 9; i++) {
 		minirows_bf[i] = 0;
@@ -93,35 +96,10 @@ void STD_B416::PrintStatus() {
 	cout << "band status i=" << i416 << "\tstart=" << dband << endl << "map ";
 	for (int i = 0; i < 27; i++)cout << map[i] << " ";
 	cout << endl;
-	cout << band << endl << "gangster status" << endl;;
+	cout << band << endl << "gangster status" << endl;
 	cout << "UAs table" << endl;
 	for (uint32_t i = 0; i < nua; i++)
 		cout << Char27out(tua[i]) << endl;
 }
 
 
-void STD_B3::PrintB3Status() {
-	cout << "band3 status" << endl;
-	for (int i = 0, ij = 0; i < 3; i++) {
-		for (int j = 0; j < 9; j++, ij++) cout << band0[ij] + 1;
-		cout << endl;
-	}
-	cout  << endl;
-	/*
-	for (int i = 0; i < 81; i++){
-		int w = guas.ua_pair[i];
-		if (w) cout << Char27out(w) << " i81=" << i << endl;
-	}
-	cout  << "gua3s" << endl;
-	for (int i = 0; i < 81; i++) {
-		int w = guas.ua_triplet[i];
-		if (w) cout << Char27out(w) << " i81=" << i << endl;
-	}
-	char ws[129];
-	const char* w3 = "123456789...---...123456789";
-	cout << w3 << w3 << w3 << endl;;
-	cout << guas.isguasocket2.String128(ws) << " sock2" << endl;
-	cout << guas.isguasocket2_46.String128(ws) << " sock2_46" << endl;
-	cout << guas.isguasocket3.String128(ws) << " sock3" << endl;
-	*/
-}

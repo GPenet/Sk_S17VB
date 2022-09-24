@@ -829,6 +829,54 @@ void ZH2GXN::SetupFsol(int * grid0) {
 	}
 }
 //________________ 2 digits guas2 only 
+
+void ZH2_2::GoZ2A(int fl) {
+	int n = 0;
+	zh2gxn.nua = 0;
+	uint64_t isfl = 0;
+	for (int i = 0, bit = 1; i < 9; i++, bit <<= 1) {
+		if (fl & bit) {
+			isfl |= zh2gxn.fsol[i];
+			zh2gxn.maptodigit[n] = i;
+			zh2gxn.fsolw[n].bf.u64 = zh2gxn.fsol[i];
+			zh2gxn.digit_map[i] = n++;
+		}
+	}
+	cells_unsolved.bf.u64 = isfl;
+	zh2gxn.unsolved_field = isfl;
+	memset(FD, 0, sizeof FD);
+	memset(CompFD, 0, sizeof CompFD);
+
+}
+
+int ZH2_2::GoZ2D(int  fl) {
+
+	*zh2gxn.nknownuas = 0;// be sure to start with no ua
+	zh2gxn.nkguas = 0;
+	GoZ2A(fl);// start shared with gangsters g2
+	// init pm using gangster
+	uint32_t gx[9];
+	for (int i = 0; i < 9; i++) {
+		gx[i] = zh2gxn.gangsters[i] & fl;
+	}
+	for (int i = 0; i < 54; i++) {
+		int xi = C_To128[i];
+		uint64_t bit = (uint64_t)1 << xi;
+		if (!(cells_unsolved.bf.u64 & bit))continue;
+		for (int idig = 0; idig < 2; idig++) {
+			uint32_t dbit = 1 << zh2gxn.maptodigit[idig];
+			if (gx[C_col[i]] & dbit) FD[idig].bf.u64 |= bit;
+		}
+	}
+	rows_unsolved.bf.u64 = 0777777;//3*6 bits
+	diag = 0;
+	//ImageCandidats();
+	//return -1;
+	if (!FullUpdate()) return -1;
+	Guess();
+	uint64_t cc = _popcnt64(cells_unsolved.bf.u64);
+	return (int)cc;
+}
 int ZH2_2::GoZ2G2(int fl, int c1, int d1, int c2, int d2) {
 	int n = 0;
 	uint64_t isfl = 0;

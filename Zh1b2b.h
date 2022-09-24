@@ -149,6 +149,7 @@ struct ZH2_2 {
 	void GoZ2A(int fl);
 	int GoZ2G2(int fl, int c1, int d1, int c2, int d2);
 	void DoZ2Go();
+	int GoZ2D(int  fl);
 
 	//________________________________________
 	int FullUpdate();
