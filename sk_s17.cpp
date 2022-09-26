@@ -2,9 +2,10 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #define SEARCH17SOL
 
+#define HAVEKNOWN 
 
 
-//#define DEBUGKNOWN 0
+#define DEBUGKNOWN 0
 #ifdef DEBUGKNOWN
 #else
 #endif
@@ -96,11 +97,9 @@ void Go_0() {
 	cerr << "running command " << sgo.command << endl;
 	switch (sgo.command) {
 	case 0: Go_c17_00(); break; // search one band1
-
+	case 10: Go_c17_10(); break; // run known
 	case 15: Go_c17_15(); break; // split knwon 17s 665 and others
 	case 16: Go_c17_16(); break; // add solution+bands index
-
-
 	case 80:  Go_c17_80(); break; // enumeration test 
 	}
 	cerr << "go_0 return" << endl;

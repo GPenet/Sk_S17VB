@@ -207,7 +207,7 @@ struct ZH2_4 {
 };
 struct ZH2_5 {
 	BF64 FD[5], CompFD[5], cells_unsolved, rows_unsolved;
-	uint64_t diag;
+	//uint64_t diag;
 
 	void GoZ5A(int fl);
 	int GoZ5(int fl);

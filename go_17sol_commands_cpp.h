@@ -170,6 +170,8 @@ void Go_c17_10( ) {
 			g17b.p17diag.Set_c(i);
 		if (g17b.debug17)
 			cout << Char2Xout(g17b.p17diag.bf.u64[0]) << " b12 pattern for the 17" << endl;
+		register uint64_t U = g17b.p17diag.bf.u64[0];
+		g17b.pk54= (U & BIT_SET_27) | ((U & BIT_SET_B2) >> 5);
 		genb12.ValidInitGang();
 		g17b.npuz = npuz;
 		g17b.StartKnown();
@@ -181,7 +183,7 @@ void Go_c17_10( ) {
 		}
 	}
 	cout << "print final stats" << endl;
-	for (int i = 0; i < 60; i++) {
+	for (int i = 0; i < 100; i++) {
 		if (!p_cpt2g[i])continue;
 		cout << p_cpt2g[i] << "\t\t" << libs_c17_00_cpt2g[i] << endl;
 	}

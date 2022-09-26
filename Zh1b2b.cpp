@@ -1649,8 +1649,7 @@ inline void ZH2_4::Assign(int rdigit, int cell, int xcell) {
 	rows_unsolved.Clear(ddig + C_row[cell]);//6*digit + row
 }
 int ZH2_4::Seta(int rdigit, int xcell) { // single in cell
-	int cell = From_128_To_81[xcell],
-		block = TblBoard_Block[cell];
+	int cell = From_128_To_81[xcell];
 	if (FD[rdigit].Off(xcell)) return 1; // not valid
 	Assign(rdigit, cell, xcell);
 	BF64 *Fd = &FD[rdigit];
@@ -2009,7 +2008,7 @@ int ZH2_5::GoZ5G3(int fl, int* gx) {
 }
 
 int ZH2_5::DoZ5Go(int debug) {// called in zhou3[1]
-	diag = debug;
+	//diag = debug;
 	zh2gxn.nua = 0;
 	/*
 		if (*zh2gxn.nknownuas) {
@@ -2028,8 +2027,7 @@ inline void ZH2_5::Assign(int rdigit, int cell, int xcell) {
 		rows_unsolved.Clear(ddig + C_row[cell]);//6*digit + row
 	}
 int ZH2_5::Seta(int rdigit, int xcell) { // single in cell
-		int cell = From_128_To_81[xcell],
-			block = TblBoard_Block[cell];
+		int cell = From_128_To_81[xcell];
 		if (FD[rdigit].Off(xcell)) return 1; // not valid
 		Assign(rdigit, cell, xcell);
 		BF64 *Fd = &FD[rdigit];
@@ -2052,8 +2050,8 @@ int ZH2_5::ApplySingleOrEmptyCells() {
 		zh2b_g.single_applied = 0;
 		uint64_t * map = &FD[0].bf.u64;
 		uint64_t unsolved = cells_unsolved.bf.u64;
-		register uint64_t R2 = map[0] & map[1],
-			R1 = (map[0] | map[1]), Map = map[2],
+		register uint64_t R2 = map[0] & map[1],	R1 = (map[0] | map[1]), 
+			Map = map[2],
 			R3 = R2 & Map, R4;// digits 12
 		R2 |= R1 & Map; R1 |= Map;
 
@@ -2070,10 +2068,9 @@ int ZH2_5::ApplySingleOrEmptyCells() {
 				if (!bitscanforward64(res, R1)) break;
 				uint64_t bit = (uint64_t)1 << res; // switch to the bit value
 				R1 &= ~bit;  // clear the bit
-				for (int idig = 0; idig < 9; idig++) {
+				for (int idig = 0; idig < 5; idig++) {
 					if (map[idig] & bit) {// this is the digit
-						int cell = From_128_To_81[res];
-						Assign(idig, cell, res);
+						Seta(idig, res);
 						goto nextr1;// finished for that cell
 					}
 				}
@@ -2120,13 +2117,8 @@ void ZH2_5::Guess() {//
 		uint32_t xcell = zh2b_g.guess_xcell, cell;
 		cell = From_128_To_81[xcell];
 		uint64_t bit = (uint64_t)1 << xcell;
-		if (diag) {
-			ImageCandidats();
-			cout << "guess" << cellsFixedData[cell].pt << endl;
-		}
 		int digit = zh2gxn.digit_map[zh2gxn.g0[cell]];
 		if (FD[digit].bf.u64 & bit) {
-			//cout << "guess ok" <<digit+1<< cellsFixedData[cell].pt << endl;
 			ZH2_5 * mynext = this + 1; // start next guess
 			*mynext = *this;
 			mynext->Seta(digit, xcell);
@@ -2135,7 +2127,6 @@ void ZH2_5::Guess() {//
 		for (int idig = 0; idig < 5; idig++) {
 			if (FD[idig].bf.u64 & bit) {
 				if (idig == digit) continue;
-				//cout << "guess nok" << idig + 1 << cellsFixedData[cell].pt << endl;
 				ZH2_5 * mynext = this + 1; // start next guess
 				*mynext = *this;
 				mynext->Seta(idig, xcell);
@@ -2157,7 +2148,6 @@ void ZH2_5::ComputeNext() {
 			uint64_t cc = _popcnt64(w.bf.u64);
 			if (w.bf.u64) {
 				// check no ua false
-				//cout << Char2Xout(w.bf.u64) << " seen" << endl;
 				int nu = *zh2gxn.nknownuas;
 				if (nu) {
 					uint64_t sok = 0; // zh2gxn.unsolved_field;
@@ -2172,8 +2162,6 @@ void ZH2_5::ComputeNext() {
 				zh2gxn.tua[zh2gxn.nua++] = w.bf.u64;
 				zh2gxn.knownuas[(*zh2gxn.nknownuas)++]
 					= w.bf.u64;
-				//cout << Char2Xout(w.bf.u64) << " added zh2gxn.nua="<< zh2gxn.nua
-				//	<< " " << cc<< endl;
 			}
 		}
 	}

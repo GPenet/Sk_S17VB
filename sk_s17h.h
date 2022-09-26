@@ -227,6 +227,12 @@ struct T54B12 {//   uas bands 1+2 in 54 mode
 			if (!(u & tm[i])) return 1;
 		return 0;
 	}
+	void DebugC() {
+		cout << " debugC nc128=" << nc128 << endl;
+		tc128[0].Dump();
+
+	}
+
 }t54b12;
 
 struct T54G2 {//
@@ -683,6 +689,7 @@ struct GEN_BANDES_12 {// encapsulating global data
 	void GetStartB2(int i); // one of the 20 starts 
 	void Start(int mode = 0);
 	void NewBand1(int iw);
+	int F17Novalid1_2();
 	int Band2Check();
 	int Band3Check();
 	void Find_band2B();
@@ -701,6 +708,7 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	G17B();// initial tasks all commands
 
 	BF128 p17diag;// known 17 pattern for tests
+	uint64_t pk54;
 	int b3lim,	 aigstop, aigstopxy,
 		npuz, a_17_found_here;
 	int  debug17, debug17_check, diag, diagbug, debugb3,

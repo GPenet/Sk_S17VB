@@ -125,7 +125,6 @@ int main(int narg, char *argv[]) {
 	sgo.foutput_name = foutput_name;
 	sgo.s_strings = s_strings;
 	sgo.vx = vx;
-	
 	Go_0();
 	cerr << " print cout time "  << endl;
 

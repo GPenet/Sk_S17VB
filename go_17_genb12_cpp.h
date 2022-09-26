@@ -168,6 +168,17 @@ int GEN_BANDES_12::Band3Check() {
 	}
 	return 0;
 }
+int GEN_BANDES_12::F17Novalid1_2() {
+	int lim = (sgo.vx[4] == 2) ? 5 : 6;
+	if(t16_min_clues[myband1.i416]==6)
+		if (t16_min_clues[myband2.i416] >= lim) {
+			cout << " bands 1+2 with no valid solution "
+				<< myband1.i416 << " " << myband2.i416 << " " << endl;
+			return 1;
+		}
+	return 0;
+}
+
 void GEN_BANDES_12::Find_band2B() {
 	int * zs0= &grid0[27];
 	register int  *crcb, bit;
@@ -248,6 +259,7 @@ int GEN_BANDES_12::ValidBand2() {
 			}
 		}
 		ValidInitGang();// also called from existing 17 in test
+		if(F17Novalid1_2())return ((nb12 >> 6) >= last);
 		if (sgo.vx[4] == 2)Find_band3B_pass1();
 		else Find_band3B();
 		return ((nb12 >> 6) >= last);
