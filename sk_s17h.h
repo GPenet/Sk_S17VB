@@ -799,6 +799,7 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	int Expand_7_10();
 	void GoExpand_7_10();
 	void Go_9_10();
+	void Go_8_10();
 
 	void Expand_7_11();
 	void Expand_7_12();

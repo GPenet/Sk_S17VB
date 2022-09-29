@@ -163,11 +163,26 @@ void Go_c17_10( ) {
 		int ib3 = perm_ret.i416, ib3a = t416_to_n6[ib3];
 		genb12.bands3[0].InitBand3(ib3, &ze[54], perm_ret);
 		genb12.nband3 = 1;
-		ze[81] = 0;
 		char * ze2 = &ze[82];
 		g17b.p17diag.SetAll_0();
 		for (int i = 0; i < 81; i++) if (ze2[i] != '.')
 			g17b.p17diag.Set_c(i);
+		{// forget if stack > band 3
+			int nb3 = _popcnt32(g17b.p17diag.bf.u32[2]);
+			for (int ibs = 3; ibs < 6; ibs++) {
+				BF128 w = g17b.p17diag & band3xBM[ibs];
+				int nbs = w.Count();
+				if (w.Count() > nb3) {
+					cout << "stop not a morph to process here" << endl;
+					return;
+				}
+			}
+		}
+		//if (ze[0] == '1')
+		//	fout1 << ze << endl;
+		//continue;;
+
+		ze[81] = 0;
 		if (g17b.debug17)
 			cout << Char2Xout(g17b.p17diag.bf.u64[0]) << " b12 pattern for the 17" << endl;
 		register uint64_t U = g17b.p17diag.bf.u64[0];

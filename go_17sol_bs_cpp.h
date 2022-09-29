@@ -2383,8 +2383,9 @@ void G17B::GoExpand_7_10() {
 #endif
 	//memset(ntbelow, 0, sizeof ntbelow);//7 8 9 10 11 full
 
-	// process 9 clues (full-1)
-	if (ntbelow[2])  Go_9_10(); // do 9 clues then nmore
+	// process 7;8;9 (to check the 4x 7valid  produce no 17)
+	if (ntbelow[1])  Go_8_10(); // do 8 clues then more
+	if (ntbelow[2])  Go_9_10(); // do 9 clues then more
 
 
 	guah54_2.Build2(sn->all_previous_cells, sn->active_cells);
@@ -2524,6 +2525,105 @@ void G17B::Go_9_10() {// 9 clues limit 10 clues
 	}
 
 }	
+void G17B::Go_8_10() {// 8 clues limit 10 clues 
+	//cout << " entry 8 clues for 10 clues" << endl;
+	t54b12.ntm = 0;
+	for (int ib3 = 0; ib3 < genb12.nband3; ib3++)
+		genb12.bands3[ib3].guam2done = 0;
+	SPB03* sn = &spb_0_15[7];
+	// this is a valid bands 1+2 checked in expand
+	guah54_2.Build2(tandbelow[1], sn->active_cells);
+	for (uint32_t iv = 0; iv < ntbelow[1]; iv++) {
+		BF128 ww = tbelow8[iv];
+		cb3.ncl = 8;
+		myb12 = cb3.bf12 = ww.bf.u64[0];
+		{// must rebuild tclues 
+			nclues = 0;
+			int cell;
+			register uint64_t U = myb12;
+			while (bitscanforward64(cell, U)) {
+				U ^= (uint64_t)1 << cell;
+				tclues[nclues++] = cell;
+			}
+		}
+
+#ifdef HAVEKNOWN
+		if (!((~pk54) & myb12)) {
+			cout << Char54out(myb12) << " seen 8 active ntm= " << t54b12.ntm << endl;
+			cout << Char54out(tandbelow[4]) << " and" << endl;
+			cout << Char54out(ww.bf.u64[1]) << " active ww" << endl;
+		}
+		else continue;
+#endif
+
+
+
+		// try direct
+		if (t54b12.NotValid(myb12)) continue;// check more uas b12
+		cb3.bfcom = sn->all_previous_cells;
+		cb3.cbs = tbelow8cbs[iv];
+		cb3.g2t = guah54_2.GetG2(cb3.bf12);
+		cb3.g3t = guah54_2.GetG3(cb3.bf12);
+		p_cpt2g[7]++;
+		clean_valid_done = 1;
+		for (int ib3 = 0; ib3 < genb12.nband3; ib3++) {
+			STD_B3& b3 = genb12.bands3[ib3];
+			b3.Go(cb3);
+		}
+		// try now one more clue in bands 1+2
+		uint64_t Ac = ww.bf.u64[1];
+		int cell;
+		while (bitscanforward64(cell, Ac)) {
+			CALLBAND3 cb3n = cb3;
+			uint64_t bit = (uint64_t)1 << cell;
+			Ac ^= bit; //clear bit
+			cb3n.bf12 |= bit;
+			myb12 = cb3n.bf12;
+			tclues[8] = cell;
+			nclues = 9;
+#ifdef HAVEKNOWN
+			if (!((~pk54) & myb12)) {
+				cout << Char54out(myb12) << " seen 8 more ok active ntm= " << t54b12.ntm << endl;
+			}
+			else continue;
+#endif
+			cb3n.ncl = 9;
+			cb3n.cbs.Add(cell);
+			cb3n.g2t = guah54_2.GetG2(myb12);
+			cb3n.g3t = guah54_2.GetG3(myb12);
+			for (int ib3 = 0; ib3 < genb12.nband3; ib3++) {
+				STD_B3& b3 = genb12.bands3[ib3];
+				b3.Go(cb3n);
+			}
+			// try now a second clue in bands 1+2
+			uint64_t Ac2 = Ac;// others are not active now
+			int cell2;
+			while (bitscanforward64(cell2, Ac2)) {
+				CALLBAND3 cb3n2 = cb3n;
+				uint64_t bit2 = (uint64_t)1 << cell2;
+				Ac2 ^= bit2; //clear bit
+				cb3n2.bf12 |= bit;
+				myb12 = cb3n2.bf12;
+				tclues[9] = cell;
+				nclues = 10;
+#ifdef HAVEKNOWN
+				if (!((~pk54) & myb12)) {
+					cout << Char54out(myb12) << " seen 8+2 more ok active ntm= " << t54b12.ntm << endl;
+				}
+				else continue;
+#endif
+				cb3n2.ncl = 10;
+				cb3n2.cbs.Add(cell);
+				cb3n2.g2t = guah54_2.GetG2(myb12);
+				cb3n2.g3t = guah54_2.GetG3(myb12);
+				for (int ib3 = 0; ib3 < genb12.nband3; ib3++) {
+					STD_B3& b3 = genb12.bands3[ib3];
+					b3.Go(cb3n2);
+				}
+			}
+		}
+	}
+}
 
 
 
@@ -2763,7 +2863,7 @@ struct CRITB3 {
 		if ((!critstack) || (!minix[2])) return;
 		for (int i = 0, bit = 1, mask = 0111; i < 3; i++, bit <<= 1, mask <<= 1) {
 			if (critstack & bit) {
-				active &= ~(stack1_54 << 3 * i); //  (stack154 << 3*i)active must be in critbf for this; stack
+				active &= ~(stack1_54 << (3 * i)); // active must  critbf  
 				if (minix[2] & mask)	AssignBf2(minix[2] & mask);
 
 			}
@@ -2808,7 +2908,7 @@ struct CRITB3 {
 	inline int GetToAss() { return (nb3 - _popcnt32(assigned)); }
 	void Status(const char* lib) {
 		cout << lib << "critical Status mincount =" << mincount << " nmiss=" << nmiss
-			<< " critstack=" << critstack << endl;
+			<< " critstack=" << critstack<< " nb3 = "<<nb3<< endl;
 		cout << Char27out(critbf) << " critical bf" << endl;
 		cout << Char27out(pairs27) << " pairs 27" << endl;
 		cout << Char27out(assigned) << " assigned" << endl;
@@ -2949,9 +3049,10 @@ uint32_t G17B::IsValidB3(uint32_t bf) {
 			register uint32_t ua = w.bf.u32[2];
 			t3_2[nt3_2++] = ua;
 #ifdef HAVEKNOWN
-			//cout << Char54out(myb12) << " go b3 ntm= " << t54b12.ntm << endl;
-			//cout << Char27out(ua) << " ua b3 add t3_2"  <<	endl;			
-			//cout << Char27out(bf) << "bf call" << endl;
+			if (npuz == 1) {
+				cout << Char27out(ua) << " ua b3 add nt3_2="<< nt3_2 <<	endl;
+				cout << Char27out(bf) << "bf call" << endl;
+			}
 #endif
 			anduab3 &= ua;
 			register uint64_t U = w.bf.u64[0];
@@ -2961,8 +3062,12 @@ uint32_t G17B::IsValidB3(uint32_t bf) {
 			if (cc <= 6 && cc>1) {
 				if (cc > 3)myband3->Addguam(w);
 				else {
-					//cout << Char2Xout(w.bf.u64[0]) << " | ";
-					//cout << Char27out(w.bf.u32[2]) << " add b3" << endl;
+#ifdef HAVEKNOWN
+					if (npuz == 1) {
+						cout << Char2Xout(w.bf.u64[0]) << " | ";
+						cout << Char27out(w.bf.u32[2]) << " add b3" << endl;
+					}
+#endif
 					if (cc == 2) {
 						int i81 = myband3->GetI81_2(w.bf.u32[2]);
 						guah54.Add2(U, i81); guah54_2.Add2(U, i81);
@@ -2979,14 +3084,6 @@ uint32_t G17B::IsValidB3(uint32_t bf) {
 
 			}
 			/*
-					else if(cc3==2  &&  ccua>10) { // must build g2
-					int i81=myband3->GetI81_2(w.bf.u32[2]);
-					guah.tg2[i81].AddIf(wd.bf.u64[0]);
-				}
-				else if (cc3 == 3  &&  ccua>9) { // must build g3
-					int i81 = mb3.GetI81_3(wd.bf.u32[2]);
-					guah.tg3[i81].AddIf(wd.bf.u64[0]);
-				}
 		uint64_t cc0 = _popcnt64(w.bf.u64[0]);
 			taddgob3[ntaddgob3++] = ua;// more for a given b1+2
 			BuildGua(w, cc);
@@ -3020,13 +3117,21 @@ void STD_B3::Go(CALLBAND3& cb3) {
 	while ((x = g3.getFirst128()) >= 0) {
 		//cout << Char9out(g.ua3_imini[x]) << " x=" << x << endl;
 		g3.clearBit(x);		Mg3 |= 1<<g.ua3_imini[x];	}
-	//cout << Char27out(Mg2) << " Mg2" << endl;
-	//cout << Char9out(Mg3) << " Mg3" << endl;
+#ifdef HAVEKNOWN
+	if (g17b.npuz == 1) { 
+		//g2.Print("g2&"); g3.Print("g3&");
+		cout << Char27out(Mg2) << " Mg2" << endl;
+		cout << Char9out(Mg3) << " Mg3" << endl;
+	}
+#endif
 	scritb3.Init(cb3.ncl, cb3.cbs);
 	for (int imini = 0; imini < 9; imini++, Mg2 >>= 3, Mg3 >>= 1) {
 		if (!(vmini = Mg2 & 7))	if (Mg3 & 1)vmini = 8;
 		if (vmini)scritb3.MinVmini(imini, vmini);
 	}
+#ifdef HAVEKNOWN
+	//if (g17b.npuz == 1)scritb3.Status(" aaaaa   ");
+#endif
 	if ((int)scritb3.mincount >   scritb3.nb3) return;
 	//cout << band << " b3 to process" << endl;
 	//scritb3.Status(" aaaa  ");
@@ -3044,7 +3149,7 @@ void STD_B3::Go(CALLBAND3& cb3) {
 	g17b.nt3 = 0;
 	register uint64_t F = cb3.bf12;
 	register uint32_t As = scritb3.assigned,Ac= scritb3.active;
-	if (0) {
+	if (g17b.npuz == 1) {
 		cout << Char54out(F) << " F" << endl;
 		cout << Char27out(As) << " As" << endl;
 		cout << Char27out(Ac) << " Ac" << endl;
@@ -3062,6 +3167,17 @@ void STD_B3::Go(CALLBAND3& cb3) {
 		}
 
 	}
+#ifdef HAVEKNOWN
+	if (g17b.npuz == 0) {
+		cout << "before bande 3" << endl;
+		for (int i = 0; i < (int)g17b.nt3; i++) {
+			register uint32_t U = g17b.t3[i];
+			cout << Char27out(U) << " i=" << i << endl;
+		}
+
+	}
+#endif
+
 	for (uint32_t i = 0; i < nua; i++) {// now band 3 uas
 		register uint32_t U = tua[i];
 		if (U & As) continue;// assigned in bands 3
@@ -3070,7 +3186,7 @@ void STD_B3::Go(CALLBAND3& cb3) {
 		g17b.t3[g17b.nt3++] = U;
 	}
 #ifdef HAVEKNOWN
-	if (0) {
+	if (g17b.npuz == 0) {
 		cout << "before tguam" << endl;
 		for (int i = 0; i < (int)g17b.nt3; i++) {
 			register uint32_t U = g17b.t3[i];
@@ -3097,7 +3213,7 @@ void STD_B3::Go(CALLBAND3& cb3) {
 
 void G17B::GoB3CleanOne() {// assign all singles in uas
 #ifdef HAVEKNOWN
-	if (0) {
+	if (g17b.npuz == 0) {
 		cout << "entry cleanone" << endl;
 		for (int i = 0; i < (int)nt3; i++) {
 			register uint32_t U = t3[i];
@@ -3129,7 +3245,7 @@ void G17B::GoB3CleanOne() {// assign all singles in uas
 		else break;
 	}
 #ifdef HAVEKNOWN
-	if (0) {
+	if (g17b.npuz == 0) {
 		cout << "exit cleanone" << endl;
 		for (int i = 0; i < (int)nt3; i++) {
 			register uint32_t U = t3[i];
@@ -3302,7 +3418,7 @@ void G17B::GoB3MissMore() {// no out field analysis here
 	}
 #ifdef HAVEKNOWN
 	cout << "fmissmore inal table ntoass="<< scritb3.GetToAss()<<" nb3 ="<<scritb3.nb3 << endl;
-	if (npuz == 87) {
+	if (npuz == 1) {
 		for (int i = 0; i < (int)nt3_2; i++) {
 			register uint32_t U = t3_2[i];
 			cout << Char27out(U) << " i=" << i << endl;
@@ -3524,7 +3640,11 @@ next:
 		s->critb3.active ^= bit;
 		sn = s + 1; *sn = *s;
 		if (sn->critb3.Addone(cell)) {
-			//cout << "can not add" << endl;
+#ifdef HAVEKNOWN
+			if (npuz == 1) {
+				cout << "can not add" << endl;
+			}
+#endif
 			goto next;
 		}
 	}
@@ -3537,8 +3657,12 @@ next:
 				U &= s->critb3.active;
 				if (!U)goto next;//dead branch
 				sn->possible_cells = U;
-				//cout  << Char27out(U) << " next ispot=" << ispot << " \t";
-				//cout << Char27out(sn->critb3.assigned) << endl;
+#ifdef HAVEKNOWN
+				if (npuz == 1) {
+					cout  << Char27out(U) << " next ispot=" << ispot << " \t";
+					cout << Char27out(sn->critb3.assigned) << endl;
+				}
+#endif
 				sn->indtw3 = i;
 				s++; // switch to next spot
 				goto next;
@@ -3546,14 +3670,23 @@ next:
 		}
 		//cout << "check before limit or n to ass=1 and one ua" << endl;
 		// no ua available must check( in 18 mode can not be valid)
+		int rn = nt3_2; //first add if any
 		if (!clean_valid_done) {
 			clean_valid_done = 1;
 			if (IsValid_myb12()) { clean_valid_done = 2; return; }
 		}
 		if (IsValidB3(sn->critb3.assigned)) {
 			if (stopexpandb3) return;
-			s->possible_cells &= anduab3;// same spot hitting  new ua
+			anduab3= t3_2[rn]& s->critb3.active;// first ua active cells
+			//s->possible_cells &= anduab3;// same spot hitting  new ua
 			sn->possible_cells = anduab3;
+			sn->indtw3 = rn;
+#ifdef HAVEKNOWN
+			if (npuz == 1) {
+				cout << Char27out(anduab3) << " next ispot after add=" << ispot << " \t";
+				cout << Char27out(sn->critb3.assigned) << " nt3_2="<<nt3_2 << endl;
+			}
+#endif
 			s = sn;
 			goto next;
 		}
@@ -3567,8 +3700,8 @@ next:
 		int aig = 1;
 		register uint32_t andw = sn->critb3.active;
 		register uint32_t F = sn->critb3.assigned;
-		//cout <<Char27out(andw) << " active entry last\t" ;
-		//cout << Char27out(F) << " assigned entry last" << endl;
+		cout <<Char27out(andw) << " active entry last\t" ;
+		cout << Char27out(F) << " assigned entry last" << endl;
 #ifdef HAVEKNOWN
 		if (!((~p17diag.bf.u32[2]) & F)) {
 			cout << Char27out(F) << " seen n-1 b3 clean_valid_done=" << clean_valid_done << endl;
