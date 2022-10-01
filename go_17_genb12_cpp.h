@@ -34,7 +34,7 @@ void GEN_BANDES_12::NewBand1(int iw) {
 		cold[i] = 0x1ff ^ myband1.gangster[i];
 	memcpy(coldf, cold, sizeof coldf);
 	zsol[27] = 0;
-	cout << "i1t16=" << i1t16 << " it16=" << it16 
+	cout << myband1.band << "i1t16=" << i1t16 << " it16=" << it16
 		<< " n auto morphs=" << n_auto_b1 << endl;
 	if (n_auto_b1) {
 		int * zs0 = grid0;
@@ -172,10 +172,20 @@ int GEN_BANDES_12::F17Novalid1_2() {
 	int lim = (sgo.vx[4] == 2) ? 5 : 6;
 	if(t16_min_clues[myband1.i416]==6)
 		if (t16_min_clues[myband2.i416] >= lim) {
-			cout << " bands 1+2 with no valid solution "
-				<< myband1.i416 << " " << myband2.i416 << " " << endl;
+			p_cpt2g[9] ++;
+			//cout << " bands 1+2 with no valid solution "
+			//	<< myband1.i416 << " " << myband2.i416 << " " << endl;
 			return 1;
 		}
+
+	if (sgo.vx[5]) {
+		if( t416_to_n6[it16_2] != sgo.vx[5]) return 1;
+		if (sgo.s_strings[0]) {
+			char* wc = sgo.s_strings[0];
+			int n = (int)strlen(wc);
+			if(strncmp(myband2.band,wc,n)) return 1; 
+		}
+	}
 	return 0;
 }
 
@@ -363,7 +373,7 @@ void GEN_BANDES_12::Find_band3B_pass1(int m10) {
 	memcpy(rowdb3, &rowd[3], sizeof rowdb3);
 	// now loop over the 24 cells not yet assigned in the band to fill the band use relative cell
 	int ii = -1, free[24];
-	uint32_t d;
+	uint32_t d, it16_3;
 nextii:
 	ii++;
 	{
@@ -381,23 +391,26 @@ next:// erase previous fill and look for next
 	rd[crcb[1]] ^= bit; cd[crcb[2]] ^= bit; bd[crcb[3]] ^= bit;
 	if (!free[ii])goto back;
 next_first:
-	crcb = tgen_band_cat[ii];// be sure to have the good one
-	bitscanforward(d, free[ii]);
-	bit = 1 << d;
-	free[ii] ^= bit;
-	zs[crcb[0] + 54] = (char)(d + '1');
-	zs0[crcb[0]] = d;
-	rd[crcb[1]] ^= bit; cd[crcb[2]] ^= bit; bd[crcb[3]] ^= bit;
-	if (ii < 23) goto nextii;
-	// this is a valid band, check if canonical
-	int ir = bandminlex.Getmin(zs0, &pband3, 0);
-	if (ir < 0) {//would be bug  did not come in enumeration
-		cerr << "gen band 3 invalid return Getmin" << endl;
-		return;
-	}
-	int it16_3 = pband3.i416;
+	{
+		crcb = tgen_band_cat[ii];// be sure to have the good one
+		bitscanforward(d, free[ii]);
+		bit = 1 << d;
+		free[ii] ^= bit;
+		zs[crcb[0] + 54] = (char)(d + '1');
+		zs0[crcb[0]] = d;
+		rd[crcb[1]] ^= bit; cd[crcb[2]] ^= bit; bd[crcb[3]] ^= bit;
+		if (ii < 23) goto nextii;
+		// this is a valid band, check if canonical
+		int ir = bandminlex.Getmin(zs0, &pband3, 0);
+		if (ir < 0) {//would be bug  did not come in enumeration
+			cerr << "gen band 3 invalid return Getmin" << endl;
+			return;
+		}
+		it16_3 = pband3.i416;
 
-	i3t16 = t416_to_n6[it16_3];
+		i3t16 = t416_to_n6[it16_3];
+
+	}
 	//========================== morphs on b1b2 base test
 	if (n_auto_b1b2) {// still direct automorphism b1b2
 		for (int imorph = 0; imorph < n_auto_b1b2; imorph++) {

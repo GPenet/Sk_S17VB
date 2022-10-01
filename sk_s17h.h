@@ -227,10 +227,25 @@ struct T54B12 {//   uas bands 1+2 in 54 mode
 			if (!(u & tm[i])) return 1;
 		return 0;
 	}
+
+	void DebugA() {
+		cout << " debugA na128=" << na128<<" nablocs=" <<nablocs<< endl;
+		for (uint32_t i = 0; i <= nablocs; i++) {
+			cout << "+ " << 128 * i<< " count " <<nta128[i]  << endl;
+			ta128[i].Dump();
+		}
+	}
+
+	void DebugB() {
+		cout << " debugB nb128=" << nb128 << " nbblocs=" << nbblocs << endl;
+		for (uint32_t i = 0; i <= nbblocs; i++) {
+			cout << "+ " << 128 * i << endl;
+			tb128[i].Dump();
+		}
+	}
 	void DebugC() {
 		cout << " debugC nc128=" << nc128 << endl;
 		tc128[0].Dump();
-
 	}
 
 }t54b12;
@@ -791,7 +806,7 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 
 	int IsValid7p(SPB03* sn);
 	int IsValid_myb12();
-	uint32_t G17B::IsValidB3(uint32_t bf);
+	uint32_t IsValidB3(uint32_t bf);
 	inline int GetNextCell(SPB03* s);
 	inline void GetNextUa(SPB03* sn);
 	inline void GetNextUaAdd(SPB03* sn);

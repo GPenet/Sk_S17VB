@@ -13,7 +13,7 @@ const char * libs_c17_00_cpt2g[100] = {
 	"6 active 6 clues",
 	"7 set b12 ",
 	"8 go b3",
-	"9 ",
+	"9 min too high",
 	"10 miss0 ",
 	"11 miss1 ",
 	"12 missmore", 
@@ -53,8 +53,10 @@ void Go_c17_00( ) {// p2 process
 	cout << sgo.vx[2] << " -v2- skip first nnn restart after batch failure" << endl;
 	cout << sgo.vx[3] << " -v3- last entry number for this batch must be > vx[2]" << endl;
 	cout << sgo.vx[4] << " -v4- 0 if p2a 1 if p2b" << endl;
-	if(sgo.vx[5])cout << sgo.vx[5] << " -v5- band filter" << endl;
-	if (sgo.vx[6])cout << sgo.vx[6] << " -v6- diag option" << endl;
+	cout << sgo.vx[5] << " filter band 2 index" << endl;
+	if(sgo.s_strings[0])	cout << sgo.s_strings[0] << " filter band 2 start" << endl;
+	if (sgo.vx[6])cout << sgo.vx[6] << " -v6- diag filter 3" << endl;
+	if (sgo.vx[7])cout << sgo.vx[6] << " -v6- diag filter 6" << endl;
 
 	int it16_start = sgo.vx[0];
 	g17b.debug17 = g17b.debug17_check =   g17b.aigstop=0;
@@ -262,7 +264,7 @@ void Go_c17_12() {// check diagonal status in a 665
 	char * ze = finput.ze;
 	int  zs0 [81],zs0d[81],
 		npuz = 0;
-	cout << "Go_c17_11() split known 17 b3_5 b3_6 " << endl;
+	cout << "Go_c17_12() band analysis " << endl;
 	while (finput.GetLigne()) {
 		// =======================morph entry to have min n6 count in first
 		for (int i = 0; i < 81; i++) {
@@ -284,7 +286,7 @@ void Go_c17_12() {// check diagonal status in a 665
 		int ib3d = perm_ret.i416, ib3ad = t416_to_n6[ib3d];
 		cout << ze << ";\t" << ib1 << ";" << ib2 << ";" << ib3
 			<<";\t" << ib1a << ";" << ib2a << ";" << ib3a
-			<< ";\t" << ib1d << ";" << ib2d << ";" << ib3d 
+			<< ";\t" << ib1d << ";" << ib2d << ";" << ib3d
 			<< ";\t" << ib1ad << ";" << ib2ad << ";" << ib3ad
 			<< endl;
 	}
