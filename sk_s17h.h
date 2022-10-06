@@ -401,6 +401,7 @@ struct GUA54 {
 		nua = nuamax = 0;
 	}
 	inline void Add(uint64_t u) {
+		if (nua >= nuamax) return;
 		killer &= u;	tua[nua++] = u;
 	}
 	inline void AddCheck(uint64_t u) {// no redundancy
@@ -411,8 +412,9 @@ struct GUA54 {
 	}
 
 	void Debug(int nodet = 1) {
-		cout << "gua type=" << type << " i81=" << i81
-			<< "\tnua=" << nua << endl;
+		if (!nua)return;
+		cout << "gua54 type=" << type << " i81=" << i81
+			<< "\tnua=" << nua << "\tnuamax=" << nuamax << endl;
 		cout << Char54out(killer) << " K" << endl;
 		if (nodet) return;
 		for (uint32_t i = 0; i < nua; i++) {
@@ -422,7 +424,7 @@ struct GUA54 {
 	}
 };
 struct GUAH54 {// handler guas 2 3 in 54 mode
-	uint64_t gbuf[162 * 40]; // room for cut 30+10 in average
+	uint64_t gbuf[162 * 60]; // room for cut 30+10 in average
 	GUA54 tg2[81], tg3[81];
 
 	void Build();
@@ -435,6 +437,9 @@ struct GUAH54 {// handler guas 2 3 in 54 mode
 		for (int i = 0; i < 81; i++) {
 			tg2[i].Debug(0);
 		}
+	}
+	void DumpOne2(int i81) {
+		tg2[i81].Debug(0);
 	}
 	void Dumpall3() {
 		for (int i = 0; i < 81; i++) {
@@ -536,7 +541,7 @@ struct STD_B3 :STD_B416 {// data specific to bands 3
 	struct GUAM {
 		uint64_t bf12;// mode 54
 		uint32_t bf3;
-	}tguam[300],tguam2[100];
+	}tguam[300],tguam2[200];
 	uint32_t ntguam,ntguam2,guam2done;
 	//_______________________
 
@@ -551,6 +556,7 @@ struct STD_B3 :STD_B416 {// data specific to bands 3
 		guam2done = 1;
 	}
 	void Addguam(BF128 w) {// entry mode 3x32
+		if (ntguam >= 300) return;
 		tguam[ntguam].bf3 = w.bf.u32[2];
 		register uint64_t U = w.bf.u64[0];
 		U = (U & BIT_SET_27) | ((U & BIT_SET_B2) >> 5);// mode 54
@@ -613,6 +619,20 @@ struct STD_B3 :STD_B416 {// data specific to bands 3
 				<<" "<< _popcnt32(w.bf3) << endl;
 
 		}
+	}
+
+	void DumpIndex() {
+		cout << "index 27 to 81 "  << endl;
+		for (int i = 0; i < 27; i++) {
+			register uint32_t i81 = i_27_to_81[i];
+			cout << i << " i81=" << i81 << " " << Char27out(g.pat2[i81]) << endl;
+		}
+		cout << "index 9 to 81 " << endl;
+		for (int i = 0; i < 9; i++) {
+			register uint32_t i81 = i_9_to_81[i];
+			cout << i << " i81=" << i81 << " " << Char27out(g.pat3[i81]) << endl;
+		}
+
 	}
 };
 
@@ -800,6 +820,7 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	void Guas2CollectG3_5d();
 	void Expand_03();
 	void Expand_46();
+	void Expand_47();
 
 	//int SetupExpand_7p();
 	//void Init7p_guas();
@@ -815,6 +836,15 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	void GoExpand_7_10();
 	void Go_9_10();
 	void Go_8_10();
+
+	int Expand_8_11();
+	void GoExpand_8_11();
+	void Go_10_11();
+	void Go_9_11();
+	void Go_8_11();
+
+
+
 
 	void Expand_7_11();
 	void Expand_7_12();

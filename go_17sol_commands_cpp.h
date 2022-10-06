@@ -50,17 +50,18 @@ const char * libs_c17_00_cpt2g[100] = {
 void Go_c17_00( ) {// p2 process
 	cout << "Go_c17_00 search batch 17 clues  " << endl;
 	cout << sgo.vx[0] << " -v0- band 0_415" << endl;
+	cout << sgo.vx[1] << " -v1- verbose if 1" << endl;
 	cout << sgo.vx[2] << " -v2- skip first nnn restart after batch failure" << endl;
 	cout << sgo.vx[3] << " -v3- last entry number for this batch must be > vx[2]" << endl;
 	cout << sgo.vx[4] << " -v4- 0 if p2a 1 if p2b" << endl;
 	cout << sgo.vx[5] << " filter band 2 index" << endl;
 	if(sgo.s_strings[0])	cout << sgo.s_strings[0] << " filter band 2 start" << endl;
 	if (sgo.vx[6])cout << sgo.vx[6] << " -v6- diag filter 3" << endl;
-	if (sgo.vx[7])cout << sgo.vx[6] << " -v6- diag filter 6" << endl;
+	if (sgo.vx[7])cout << sgo.vx[7] << " -v7- diag filter 6" << endl;
 
 	int it16_start = sgo.vx[0];
-	g17b.debug17 = g17b.debug17_check =   g17b.aigstop=0;
-	//g17b.diag = sgo.vx[6];
+	g17b.debug17_check =   g17b.aigstop=0;
+	g17b.diag = g17b.debug17 = sgo.vx[1];
 	genb12.skip = sgo.vx[2];
 	genb12.last = sgo.vx[3];
 	if (sgo.vx[2] < 0) {
@@ -124,6 +125,8 @@ void Go_c17_10( ) {
 	// search 17 using a file having known  as entry and one 17 given 6 6 5
 	char * ze = finput.ze;
 	int * zs0 = genb12.grid0, npuz = 0;
+	g17b.debug17 = g17b.diag = sgo.vx[1];
+	g17b.debug17_check = 0;
 	cout << "Go_c17_10() search 17 using a file having known 17 656 " << endl;
 	while (finput.GetLigne()) {
 		if(strlen(ze)<160) continue;// skip blank lines
@@ -133,10 +136,8 @@ void Go_c17_10( ) {
 		g17b.aigstop= 0;
 		if (npuz <= (int)sgo.vx[2]) continue;
 		if (npuz > (int)sgo.vx[3]) break;
-		g17b.debug17 = sgo.vx[0];
-		g17b.debug17_check = 0;
 		//if (npuz >5) return;
-		cout << "\n\nto process  n="<<dec << npuz <<" debug="<< g17b.debug17 << endl;
+		cout << "\n\nto process  n="<<dec << npuz <<" debug="<< sgo.vx[1] << endl;
 		long tdeb = GetTimeMillis();
 		//================================ to avoid the 665 case
 		int ncb3 = 0;
@@ -149,7 +150,7 @@ void Go_c17_10( ) {
 			}
 		}
 
-		if (g17b.debug17)
+		if (sgo.vx[1])
 			cout << ze <<  " to process  n="  << npuz << endl;
 
 		// =======================morph entry 
@@ -191,7 +192,14 @@ void Go_c17_10( ) {
 		g17b.pk54= (U & BIT_SET_27) | ((U & BIT_SET_B2) >> 5);
 		genb12.ValidInitGang();
 		g17b.npuz = npuz;
+
+#ifdef HAVEKNOWN
+
 		g17b.StartKnown();
+#else
+		g17b.Start();
+#endif
+
 		//g17b.a_17_found_here = 1;
 		if (!g17b.a_17_found_here) {
 			cout << "puz="<<npuz << " failed to find the searched 17" << endl;

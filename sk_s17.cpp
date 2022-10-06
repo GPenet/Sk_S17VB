@@ -3,12 +3,8 @@
 #define SEARCH17SOL
 
 //#define HAVEKNOWN 
+//#define DEBUGKNOWN 0  forget use sgo.vx[1]
 
-
-//#define DEBUGKNOWN 0
-#ifdef DEBUGKNOWN
-#else
-#endif
 
 
 /* program organisation
