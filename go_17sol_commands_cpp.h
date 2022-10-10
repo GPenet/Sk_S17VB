@@ -58,7 +58,7 @@ void Go_c17_00( ) {// p2 process
 	if(sgo.s_strings[0])	cout << sgo.s_strings[0] << " filter band 2 start" << endl;
 	if (sgo.vx[6])cout << sgo.vx[6] << " -v6- diag filter 3" << endl;
 	if (sgo.vx[7])cout << sgo.vx[7] << " -v7- diag filter 6" << endl;
-
+	if (sgo.bfx[0] & 1)g17b.nsearched = 18; else g17b.nsearched = 17;
 	int it16_start = sgo.vx[0];
 	g17b.debug17_check =   g17b.aigstop=0;
 	g17b.diag = g17b.debug17 = sgo.vx[1];

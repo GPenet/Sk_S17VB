@@ -9,6 +9,12 @@ struct CBS {// clues band stack
 		if (b[0] > 7 || b[1] > 7)return 1;
 		return 0;
 	}
+	inline uint64_t LimBand6(uint64_t bf) {
+		if (b[0] >6 || b[1] > 67)return 0;
+		if (b[0] == 6) return bf & (~BIT_SET_27);
+		if (b[1] == 6) return bf & BIT_SET_27;
+		return bf;
+	}
 
 	inline int IsFilt11_17() {// 566 656 no stack>6
 		if (b[0] > 6 || b[1] > 6)return 1;
@@ -209,7 +215,8 @@ struct T54B12 {//   uas bands 1+2 in 54 mode
 			myvc[cell].clearBit(ir);
 		}
 	}
-	int Build_tc128();
+	int Build_tc128();// after 6 clues
+	int Build_tc128_7();//after 7 clues 
 	inline int IsNotRedundant(uint64_t u) {
 		register uint64_t nu = ~u;
 		for (uint32_t i = 0; i < ntc128[0]; i++)
@@ -551,7 +558,7 @@ struct STD_B3 :STD_B416 {// data specific to bands 3
 		register uint64_t F = known, n = 0;
 		for (uint32_t i = 0; i < ntguam; i++)
 			if (!(F & tguam[i].bf12))
-				tguam2[n++] = tguam[i];
+				if(n<200)tguam2[n++] = tguam[i];
 		ntguam2 = (int)n;
 		guam2done = 1;
 	}
@@ -745,7 +752,7 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	BF128 p17diag;// known 17 pattern for tests
 	uint64_t pk54;
 	int b3lim,	 aigstop, aigstopxy,
-		npuz, a_17_found_here;
+		npuz, a_17_found_here,nsearched ;
 	int  debug17, debug17_check, diag, diagbug, debugb3,
 		is_test_on,ng2,ng3;
 	int grid0[81];
@@ -837,7 +844,8 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	void Go_9_10();
 	void Go_8_10();
 
-	int Expand_8_11();
+	int Expand_8_11_18();
+	int Expand_8_11_17();
 	void GoExpand_8_11();
 	void Go_10_11();
 	void Go_9_11();
@@ -846,8 +854,8 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 
 
 
-	void Expand_7_11();
-	void Expand_7_12();
+	void Expand_7_11x();
+	void Expand_7_12x();
 
 	void GoBelow(SPB03* sn);
 	void ExpandAddB1B2(SPB03* sn);
