@@ -447,9 +447,50 @@ back:
 
 }
 
+void BandReShape(int* s, int* d, BANDMINLEX::PERM p) {
+	int* pc = p.cols;
+	//uint8_t* pc = p.cols;
+	for (int irow = 0; irow < 3; irow++) {
+		int drow = 9 * irow;
+		for (int icol = 0; icol < 9; icol++)
+			d[drow + icol] = p.map[s[drow + pc[icol]]];
+	}
+	int temp[9];// now reorder 
+	if (d[0] > d[9]) {
+		memcpy(temp, &d[0], sizeof temp);
+		memcpy(&d[0], &d[9], sizeof temp);
+		memcpy(&d[9], temp, sizeof temp);
+	}
+	if (d[0] > d[18]) {
+		memcpy(temp, &d[0], sizeof temp);
+		memcpy(&d[0], &d[18], sizeof temp);
+		memcpy(&d[18], temp, sizeof temp);
+	}
+	if (d[9] > d[18]) {
+		memcpy(temp, &d[9], sizeof temp);
+		memcpy(&d[9], &d[18], sizeof temp);
+		memcpy(&d[18], temp, sizeof temp);
+	}
+}
+void BandReOrder(int* d) {
+	int temp[9];// now reorder 
+	if (d[0] > d[9]) {
+		memcpy(temp, &d[0], sizeof temp);
+		memcpy(&d[0], &d[9], sizeof temp);
+		memcpy(&d[9], temp, sizeof temp);
+	}
+	if (d[0] > d[18]) {
+		memcpy(temp, &d[0], sizeof temp);
+		memcpy(&d[0], &d[18], sizeof temp);
+		memcpy(&d[18], temp, sizeof temp);
+	}
+	if (d[9] > d[18]) {
+		memcpy(temp, &d[9], sizeof temp);
+		memcpy(&d[9], &d[18], sizeof temp);
+		memcpy(&d[18], temp, sizeof temp);
+	}
+}
 
-void BandReShape(int* s, int* d, BANDMINLEX::PERM p);
-void BandReOrder(int* d);
 
 //============== pass1 filters
 void GEN_BANDES_12::F3B_See() {
