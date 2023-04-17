@@ -180,7 +180,6 @@ int GEN_BANDES_12::F17Novalid1_2() {
 				return 1;
 			}
 	}
-	if (op.t18 && op.b3low) return 0;
 	//if (op.b2slice) {
 		//int ix = t416_to_n6[it16_2];
 		//if (ix < op.b2_is) return 1;

@@ -4,11 +4,8 @@ struct OPCOMMAND {// decoding command line option for this rpocess
 	int opcode;
 	int tbn, bx3;// 
 	int t18, p1, p2, p2b,//17 of 18 clues, pass or 2 (2a or 2b)
-		b2slice, // runing a slice of bands 2 in 18 mode bfx[0] & 8
-		b3low, // running band 1 pass1 for slices in pass2 bfx[0] & 16
 		out_one,// limit output to one per band 3 .bfx[2] & 1
-		out_entry, //output of the entry file for test DLL .bfx[2] & 2
-	    known; // 1 if known process 2 if known filter active .bfx[2] & 4
+		out_entry; //output of the entry file for test DLL .bfx[2] & 2
 	// bfx[2] & 8 special use b2_is as limit b3
 	int b1;//band 1 in process 
 	int b2,b2_is ;//bands b2  forced
@@ -17,12 +14,9 @@ struct OPCOMMAND {// decoding command line option for this rpocess
 	int ton;//test on and test level
 	uint64_t f0, f3, f4, f7,f10; // filters p_cpt2g [3] [4) [7]
 	int upto3, upto4; // active below f3 below f4
-	int dv12, dv3;// print fresh uas bands 1 2 band 3
-	int dumpa;
 	void SetUp(int opcod,int k = 0,int p=1) {// init known or not
 		memset(this, 0, sizeof * this);
 		opcode = opcod;
-		known = k;
 		tbn = sgo.vx[10];
 		bx3 = sgo.vx[11];
 		f0= sgo.vx[12];
@@ -33,11 +27,6 @@ struct OPCOMMAND {// decoding command line option for this rpocess
 			if (p2b && t18) { p2b = 0; }
 		}
 		else p1 = 1;
-		if(t18 && (sgo.bfx[0] & 8)) {// slice of bands 
-			b2slice = 1; 
-		}
-		if (p1 && (sgo.bfx[0] & 16))b3low = 1;
-
 		b1 = sgo.vx[0];
 		first = sgo.vx[2];
 		last = sgo.vx[3];
@@ -53,14 +42,9 @@ struct OPCOMMAND {// decoding command line option for this rpocess
 
 		if (sgo.bfx[1] & 1)upto3 = 1;		
 		if (sgo.bfx[1] & 2)upto4 = 1;
-		if (sgo.bfx[1] & 4)dv12 = 1;
-		if (sgo.bfx[1] & 8)dumpa = 1;
-		if (sgo.bfx[1] & 16)dv3 = 1;
 
 		if (sgo.bfx[2] & 1) out_one = 1;
 		if (sgo.bfx[2] & 2) out_entry = 1;
-		if (known)if (sgo.bfx[2] & 4) known = 2;
-
 		// sgo.bfx[3] is for partial process 
 
 		if (p) {
@@ -74,19 +58,9 @@ struct OPCOMMAND {// decoding command line option for this rpocess
 			cout << sgo.vx[0] << " b1  -v0- band 0_415" << endl;
 			cout << sgo.vx[2] << " first  -v2- first slice to process" << endl;
 			cout << sgo.vx[3] << " last  -v3- last slice to process must be >= vx[2]" << endl;
-			if (b2slice) {
-				cout << "running a slice of bands 2 index from="
-					<< b2_is << " to=" << b2 << endl;
-			}
-			if (b3low)
-				cout << " pass1 with limit in band 3 index <= band1 index " << endl;
 			if (out_one) cout << " max one out per band 3 sgo.bfx[2] & 1 " << endl;
 			if (out_entry)  cout << " file1 contains attached solution grids" << endl;
 			cout << "debugging commands___________________" << endl;
-			if (known) {
-				cout << "processing solution grids with known" << endl;
-				if (known > 1)cout << "\tfilter on path active  sgo.bfx[2] & 2" << endl; 
-			}
 			if(b2)		cout << b2 << " b2 -v5- filter band 2 index" << endl;
 			if (bx3<416)		cout << bx3 << " b3 index" << endl;
 			if (b2start)	cout << b2start << " filter band 2 start" << endl;
@@ -96,11 +70,8 @@ struct OPCOMMAND {// decoding command line option for this rpocess
 			if (f3)cout << f3 << "  f3  -v6- diag filter 3 clues [3]" << endl;
 			if (f4)cout << f4 << "  f4  -v7- diag filter 6 clues [6]" << endl;
 			if (f7)cout << f7 << "  f7  -v8- diag filter go full [7]" << endl;
-			if (dv12)cout << "  -b1-..x  dump add in valid b12" << endl;
-			if (dumpa)cout << "  -b1-...x  dump uas b12 at the start" << endl;
 			if (upto3)cout << "upto debugging [3]  sgo.bfx[1] & 1 " << endl;
 			if (upto4)cout << "upto debugging [4]  sgo.bfx[1] & 2 " << endl;
-			if (dv3)cout << " -b1-...x print fresh adds " << endl;
 
 		}
 	}
@@ -116,7 +87,6 @@ struct SPB03B {// spots 6 first clues
 	BF128 v[UACNBLOCS];
 	uint64_t  possible_cells, all_previous_cells, active_cells;
 };
-
 
 // expand uas in band 3
 struct SP3 {
@@ -138,7 +108,6 @@ struct SGUA2 {// 81 possible UA2 sockets
 		validuas,// gua2s found
 		used;// if needed in bands3
 	int gangcols[9];// revised gangster
-	//uint32_t nua;// nua_start, nua_end;
 
 }tsgua2[81];
 struct SGUA3 {// 81 possible UA3 sockets
@@ -152,7 +121,6 @@ struct SGUA3 {// 81 possible UA3 sockets
 	int valid, // valid if guas 
 		validuas,// gua2s found
 		used;// if needed in bands3
-	//uint32_t nua;// nua_start, nua_end, nua;
 }tsgua3[81];
 
 
@@ -169,19 +137,6 @@ struct TUASB12 {//  initial set of uas bands 1+2
 		ndigs[nua] = nd;
 		tua[nua++] = ua;
 	}
-	void DumpInit() {
-		cout << "dumpinit  tua nua=" << nua << endl;
-		for (uint32_t iua = 0; iua < nua; iua++) {
-			cout << Char2Xout(tua[iua]) << " i="
-				<< iua << " " << (tua[iua] >> 59)
-				<< " " <<_popcnt64(tua[iua] & BIT_SET_2X);
-			cout << " digs " << Char9out(tdigs[iua]) << " " << ndigs[iua] << endl;;
-		}
-	}
-	void DumpShort(const char * lib) {
-		cout << lib  << "tuasb12 tua nua=" << nua << endl;
-	}
-
 }tuasb12;
 struct T54B12 {//   uas bands 1+2 in 54 mode
 	struct TUVECT {//  128 uas and vectors
@@ -198,17 +153,6 @@ struct T54B12 {//   uas bands 1+2 in 54 mode
 				wa &= t[ir];
 			}
 		}
-		void Dumpv(int lim = 32) {
-			cout << Char32out(v0.bf.u32[0]) << " v0" << endl;
-			for (int i = 0; i < 54; i++)
-				cout << Char32out(vc[i].bf.u32[0]) << " cell=" << i << endl;
-		}
-		void Dump(int lim = 128) {
-			for (int i = 0; i < lim; i++)
-				if (v0.On(i))
-					cout << Char54out(t[i]) << " " << i <<" "<<_popcnt64(t[i]) << endl;
-				else return;
-		}
 	};
 	// working area for "build"
 	uint64_t tw[UA12SIZE]; // to check redundancy
@@ -223,7 +167,7 @@ struct T54B12 {//   uas bands 1+2 in 54 mode
 		na128 = nablocs = 0;
 		for (int i = 0; i < UA12BLOCS; i++)ta128[i].Init();
 	}
-inline void AddA(uint64_t u) {
+	inline void AddA(uint64_t u) {
 		if (na128 >= UA12BLOCS * 128) return;
 		register uint32_t bloc = na128 >> 7, ir = na128 - (bloc << 7);
 		na128++; nablocs = bloc; nta128[bloc]++;
@@ -337,33 +281,6 @@ inline void AddA(uint64_t u) {
 		return 1;
 	}
 
-	void DebugA() {
-		cout << " debugA na128=" << na128<<" nablocs=" <<nablocs<< endl;
-		for (uint32_t i = 0; i <= nablocs; i++) {
-			cout << "+ " << 128 * i<< " count " <<nta128[i]  << endl;
-			ta128[i].Dump();
-		}
-	}
-
-	void DebugB() {
-		cout << " debugB nb128=" << nb128 << " nbblocs=" << nbblocs << endl;
-		for (uint32_t i = 0; i <= nbblocs; i++) {
-			cout << "+ " << 128 * i << endl;
-			tb128[i].Dump();
-		}
-	}
-	void DebugC() {
-		cout << " debugC nc128=" << nc128 << endl;
-		for (uint32_t i = 0; i <= ncblocs; i++) {
-			cout << "+ " << 128 * i << endl;
-			tc128[i].Dump();
-		}
-	}
-	void DebugD() {
-		cout << " debugD nd128=" << nd128  << endl;
-		td128[0].Dump();
-	}
-
 }t54b12;
 
 //____ guas (uas with band3)
@@ -425,15 +342,7 @@ struct GUAH {// handler for initial collection of guas 2 3
 			}
 
 		}
-		void Debug(int nodet = 1) {
-			cout << "gua type=" << type << " i81=" << i81
-				<< "\tnua=" << nua << endl;
-			if (nodet) return;
-			for (uint32_t i = 0; i < nua; i++) {
-				cout << Char2Xout(tua[i]) << " " << _popcnt64(tua[i] & BIT_SET_2X)
-					<< " " << i << endl;
-			}
-		}
+
 	}tg2[81], tg3[81], guaw;
 	void Init() {
 		for (int i = 0; i < 81; i++) {
@@ -479,25 +388,7 @@ struct GUAH {// handler for initial collection of guas 2 3
 		}
 		return n;
 	}
-	void Dump2all2() {
-		for (int i = 0; i < 81; i++) if (tg2[i].nua) {
-			tg2[i].Debug(0);
-		}
-	}
-	void Dump2all3() {
-		for (int i = 0; i < 81; i++) if (tg3[i].nua) {
-			tg3[i].Debug(0);
-		}
-	}
-	void DumpOne2(int i) {
-		cout << "debug2 i_1=" << i << endl;
-		if (tg2[i].nua) 			tg2[i].Debug(0);
-	}
 
-	void DumpOne3(int i) {
-		cout << "debug3 i_1=" << i << endl;
-		if (tg3[i].nua) 			tg3[i].Debug(0);
-	}
 }guah;
 struct GUAH54N {
 	struct Z128 {// for one gua2/gua3
@@ -528,37 +419,7 @@ struct GUAH54N {
 				vc[cell].clearBit(nr);
 			}
 		}
-		void Dump(int det=0) {
-			cout << "dump mode " << mode2_3 << " i81" << i81 << endl;
-			for (uint32_t i = 0; i < 128; i++) {
-				if (v0.Off(i))break;
-				if (det > 1)
-					cout << 100 * (mode2_3 ) + i81<<" ";
-				for (int j = 0; j < 54; j++)
-					if (vc[j].On(i)) cout << ".";
-					else cout << "1";
-				cout << "  " << i << endl;
-			}
-			if (det > 2) {
-				v0.Print(" v0");
-				v6.Print(" v6");
-				v9.Print(" v9");
-			}
-		}
-		void DumpFiltered(uint64_t u) {
-			for (uint32_t i = 0; i < 128; i++) {
-				if (v0.Off(i))break;
-				char ws[55], aig = 1;
-				memset(ws, '.', sizeof ws); ws[54] = 0;
-				for (uint64_t j = 0, bit = 1; j < 54; j++, bit <<= 1) {
-					if (vc[j].On(i)) continue;
-					if (bit & u) { aig = 0; break; }
-					else ws[j] = '1';
-				}
-				if(aig)cout<<ws  << "  " << i << endl;
-			}
 
-		}
 		int Redundant(uint64_t u) {
 			for (uint32_t i = 0; i < 128; i++) {
 				if (v0.Off(i))return 0;
@@ -833,63 +694,6 @@ struct GUAH54N {
 			vc[cell].clearBit(n);
 		}
 	}
-	void Status(int det = 0) {
-		uint32_t nn = nbl0;
-		cout << "GUAH54N status nbl0=" << nbl0 << "  nzzused=" << nzzused << endl;
-		if (det)
-			for (uint32_t i = 0; i < nbl0; i++)
-				cout << Char54out(bloc0[i].ua) << " " << bloc0[i].id << endl;
-		for (uint32_t i = 0; i < nzzused; i++) {
-			Z128& myz = zz[i];
-			if (det) {
-				cout << myz.mode2_3 << " " << myz.i81 << "\t"
-					<< " n=" << myz.n << endl;
-				if (det > 1) {
-					cout << Char54out(myz.killer) << " killer" << endl;
-					myz.Dump(det);
-				}
-			}
-			nn += myz.n;
-		}
-		cout << "total g2+g3 = " << nn << endl;
-	}
-	void Statusgx() {
-		cout << " get g2 g3 result" << endl;
-		for (uint32_t i = 0; i < ntg2; i++) cout << tg2[i] << " ";
-		cout << " g2 list" << endl;
-		g2.Print("g2");
-		for (uint32_t i = 0; i < ntg3; i++) cout << tg3[i] << " ";
-		cout << " g3 list" << endl;
-		g3.Print("g3");
-	}
-	void Statusv6() {
-		cout << "v6 status still active end " << ntind6 << endl;
-		for (uint32_t i = 0; i < nzzused; i++) {
-			Z128& myz = zz[i];
-			cout << myz.mode2_3 << " " << myz.i81 << endl;
-			myz.v6.Print("v6");
-		}
-	}
-	void Statusv9() {
-		cout << "v9 status still active end " << ntind9 << endl;
-		for (uint32_t it = 0; it < ntind6; it++) {
-			Z128& myz = zz[tind6[it]];
-			cout <<myz.mode2_3<<" "<<myz.i81 << endl;
-			myz.v9.Print("v9");
-		}
-	}
-	void StatusFiltered(uint64_t u) {
-		cout << "GUAH54N status filtered"<< endl;
-		for (uint32_t i = 0; i < nzzused; i++) {
-			Z128& myz = zz[i];
-			if (myz.killer & u)continue;
-			cout << myz.mode2_3 << " " << myz.i81 << "\t"
-					<< " n=" << myz.n << endl;
-			myz.DumpFiltered(u);
-				
-			
-		}
-	}
 
 }guah54n;
 
@@ -922,7 +726,7 @@ struct XQ {//to build the UAs b3 to expand
 		}
 		else {	fa = 0; fb = BIT_SET_27;}
 	}
-	int Miss1ToMiss0(int debug=0);
+	int Miss1ToMiss0();
 	int MissxToMiss0(uint32_t ubf);
 	int Miss0CheckTin();
 	int NoRoomToAssign() {
@@ -1166,61 +970,6 @@ struct XQ {//to build the UAs b3 to expand
 	void CleanIn();
 	void CleanOut();
 	void CleanOut(uint32_t F, uint32_t A);
-	void Dump1() {
-		cout << "xq nmiss= " << nmiss<< " nb3="<<nb3 << endl;
-		cout << Char27out(t1a) << "t1a bf2 to assign" << endl;
-		cout << Char27out(critbf) << " critbf" << endl;
-		cout << "___________________  2 pairs" << endl;
-		for(uint32_t i=0;i<n2a;i++)
-			cout << Char27out(t2a[i])  << endl;
-		cout << "___________________  3 pairs" << endl;
-		for (uint32_t i = 0; i < n2b3; i++)
-			cout << Char27out(t2b3[i]) << endl;
-		cout << "___________________  one hit" << endl;
-		for (uint32_t i = 0; i < n2b; i++)
-			cout << Char27out(t2b[i]) << endl;
-
-	}
-	void Dump2() {
-		cout << Char27out(fa) << " F assigned" << endl;
-		cout << Char27out(fb) << " fb active" << endl;
-		cout << Char27out(critbf) << " critbf" << endl;
-	}
-	void DumpOut() {
-		cout << "out status nout=" <<nout<< endl;
-		for (uint32_t j = 0; j < nout; j++)
-			cout << Char27out(tout[j])<< " "<<j << endl;
-
-	}
-
-	void Status() {
-		Dump1(); //Dump2();
-		cout << " nadded= " << nadded 
-			<<" nout="<<nout << endl;
-		for (uint32_t i = 0; i < nout; i++)
-			cout << Char27out(tout[i]) << endl;
-		cout << " nin=" << nin << endl;
-		for (uint32_t i = 0; i < nin; i++)
-			cout << Char27out(tin[i]) << endl;
-		cout << "end xq status \n" << endl;
-	}
-	void Statusmiss0(uint32_t F, uint32_t A) {
-		cout << Char27out(F) << " F" << endl; 
-		cout << Char27out(A) << " A" << endl;
-		cout << "___________________  3 pairs" << endl;
-		for (uint32_t i = 0; i < n2b3; i++)
-			cout << Char27out(t2b3[i]) << endl;
-		cout << "___________________  one hit" << endl;
-		for (uint32_t i = 0; i < n2b; i++)
-			cout << Char27out(t2b[i]) << endl;
-		cout << " nin=" << nin << endl;
-		for (uint32_t i = 0; i < nin; i++)
-			cout << Char27out(tin[i]) << endl;
-		cout << " nout=" << nout << endl;
-		for (uint32_t i = 0; i < nout; i++)
-			cout << Char27out(tout[i]) << endl;
-		cout << "end xq status \n" << endl;
-	}
 }xq;
 
 // standard  bands  
@@ -1249,8 +998,6 @@ struct STD_B416 {
 	void MorphUas();
 	void InitC10(int i);// known mode
 
-
-	void PrintStatus();
 };
 struct STD_B3 :STD_B416 {// data specific to bands 3
 	// permanent gangster information
@@ -1268,12 +1015,12 @@ struct STD_B3 :STD_B416 {// data specific to bands 3
 	int triplet_perms[9][2][3];
 	uint32_t i_27_to_81[27], i_9_to_81[9]; //band i81 for guas guas3
 	uint32_t i_81_to_27[81]; //band i81 for guas guas3
-	uint32_t  poutdone,
+	uint32_t  poutdone, aigskip,
 		tg2_4[50], ntg2_4, tg2_6[50], ntg2_6;
 	//_______________________
 	void InitBand3(int i16, char* ze, BANDMINLEX::PERM& p);
 	void GoA();// start band 3  
-	void GoAg23(int debug=0);// fresh g2 g3 to consider 
+	void GoAg23();// fresh g2 g3 to consider 
 	void GoB0();// band3 miss0 at start
 	void GoC0(uint32_t bf, uint32_t a);// band3 miss0 before guam guamm
 	void GoC0F(uint32_t bf);//same nb3 filled
@@ -1324,19 +1071,7 @@ struct STD_B3 :STD_B416 {// data specific to bands 3
 		}
 		return 1;
 	}
-	void DumpIndex() {
-		cout << "index 27 to 81 " << endl;
-		for (int i = 0; i < 27; i++) {
-			register uint32_t i81 = i_27_to_81[i];
-			cout << i << " i81=" << i81 << " " << Char27out(g.pat2[i81]) << endl;
-		}
-		cout << "index 9 to 81 " << endl;
-		for (int i = 0; i < 9; i++) {
-			register uint32_t i81 = i_9_to_81[i];
-			cout << i << " i81=" << i81 << " " << Char27out(g.pat3[i81]) << endl;
-		}
 
-	}
 
 #define GM_NB4 50
 #define GM_NBM 50
@@ -1423,17 +1158,6 @@ struct STD_B3 :STD_B416 {// data specific to bands 3
 		for (uint32_t i = 0; i <= nbbgmm; i++) 
 				tgm64m[i].Set6(tc);
 	}
-	void DumpTgm() {
-		cout << "dumptgm ngm=" << nbgm << endl;
-		for (uint32_t i = 0; i <= nbbgm; i++)
-			tgm64[i].Dump(i << 6);
-	}
-	void DumpTgmm() {
-		cout << "dumptgm ngmm=" << nbgmm << endl;
-		for (uint32_t i = 0; i <= nbbgmm; i++)
-			tgm64m[i].Dump(i << 6);
-	}
-	void Checkkown4();
 
 };
 
@@ -1494,16 +1218,7 @@ struct GEN_BANDES_12 {// encapsulating global data
 
 struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	G17B();// initial tasks all commands
-
-	BF128 p17diag;// known 17 pattern for tests
-
-	inline int IspathB3(uint32_t bf) {
-		if (!((~p17diag.bf.u32[2]) & bf)) return 1;
-		return 0;
-	}
-
-	uint64_t pk54;
-	int b3lim,	 aigstop, aigstopxy,knownt,
+	int b3lim,	 aigstop, aigstopxy,nb3_not_found,
 		npuz, a_17_found_here ;
 	int ng2,ng3;
 	int grid0[81];
@@ -1578,10 +1293,7 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	
 	//=====================process for a new band 2 / set of bands 3
 	void Start();// standard entry
-	void StartPrint();// standard entry
-	void StartKnown();// entry for a known 17
 	void StartInit();// initial task gangster set up 
-	void StartInitDebug();// initial task gangster set up 
 	void UaCollector();
 	inline void Adduab12(uint32_t digs, uint32_t nd);
 	void FirstUasCollect();
@@ -1630,15 +1342,9 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 		}
 	}
 
-
 	void GoCallB3Com();
 
-
-
-	uint64_t GetLastD();
-
-
-	uint32_t IsValidB3(uint32_t bf,int debug=0);
+	uint32_t IsValidB3(uint32_t bf);
 
 	// option no table of clues, no live count per band stack
 
@@ -1658,20 +1364,9 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	void Go_7_12();
 	void Go_x_12();
 
-
-
 	void Go_8_11_17();
 	void Go_7_11_17();
 	void Go_x_11_17();
-
-/*
-	inline int VerifyValid() {
-		if (clean_valid_done) return 0;
-		clean_valid_done = 1;
-		if (!IsValid_myb12()) return 0;
-		return 1;
-	}
-*/
 
 	inline int VerifyValidb3() {
 		if (clean_valid_done == 2) return 1;
@@ -1688,20 +1383,14 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	void GoSubcritToMiss0(uint32_t bf, uint32_t ac);
 	void GoD0F(uint32_t bf);//end all clues there
 
-	void BridgeEndMiss0();
-	void GoEndMiss0();
-	void GoEndAll(uint32_t bf, uint32_t ac,int debug=0);
-	void GoNotMiss0();
+	void GoEndAll(uint32_t bf, uint32_t ac);
 	void TryMiss1Subcritical();
 
 
-	void GoB3Expand_1_3(uint32_t bf, uint32_t ac, int debug = 0);
-	void GoB3Expand_4_x(SP3 spe, int debug = 0);
+	void GoB3Expand_1_3(uint32_t bf, uint32_t ac);
+	void GoB3Expand_4_x(SP3 spe);
 
 	void Out17(uint32_t bfb3);
-
-	int nt4ok, okcheck;// for known
-	// bands 1+2 valid epansion
 
 
 };
