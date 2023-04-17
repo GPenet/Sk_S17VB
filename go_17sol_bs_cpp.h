@@ -180,6 +180,7 @@ void G17B::Start() {// processing an entry
 	StartInit();// do all preliminary setups
 	UaCollector();//_do uas/guas2_3 initial harvest
 	StartAfterUasHarvest();
+	if (op.out_one) aigstop = 0;// reinit stop at first
 }
 
 struct EXTUAS {// get a sorted subset of uas for next "collect" step
@@ -1329,7 +1330,6 @@ next3:
 }
 void G17B::Expand_46(SPB03A& s3) {
 	if (aigstop) return;
-
 	T54B12::TUVECT& tuv128 = t54b12.tb128[0];
 	uint64_t* twu = tuv128.t;
 	SPB03A sp3, sp4, sp5, sp6;

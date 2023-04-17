@@ -1218,7 +1218,7 @@ struct GEN_BANDES_12 {// encapsulating global data
 
 struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	G17B();// initial tasks all commands
-	int b3lim,	 aigstop, aigstopxy,nb3_not_found,
+	int b3lim, aigstop, aigstopxy, nb3_not_found,
 		npuz, a_17_found_here ;
 	int ng2,ng3;
 	int grid0[81];
