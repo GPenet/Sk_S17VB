@@ -2,10 +2,6 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #define SEARCH17SOL
 
-//#define HAVEKNOWN 
-//#define DEBUGKNOWN 0  forget use sgo.vx[1]
-
-
 
 /* program organisation
 	main is the standard frame including the basic brute force 
@@ -38,6 +34,7 @@ extern ZH2_3  zh2_3[10];
 extern ZH2_4  zh2_4[20];
 extern ZH2_5  zh2_5[20];
 extern ZH2B zh2b[40], zh2b_i, zh2b_i1;
+//extern ZH2B_1D zh2b1d[6]; // maxi 6 guesses, one per row
 
 FINPUT finput;
 ofstream  fout1, fout2;
@@ -48,6 +45,7 @@ G17B g17b;
 GEN_BANDES_12 genb12;
 STD_B416 myband1, myband2;
 
+
 //tables of potential bands 1+2
 BF128 tbelow7[10], tbelow8[100], tbelow9[500], tbelow10[2000], tbelow11[10000];
 uint32_t ntbelow[6], nt_7_9;//7,8,9,10,11,full clues
@@ -55,12 +53,17 @@ uint64_t tfull[50000];
 
 uint64_t p_cptg[40], p_cpt1g[20], p_cpt2g[100];
 uint64_t p_cpt[40], p_cpt1[20];
+// buffer to load the knwon status of 18s in solution grids
+uint8_t bitfield_sgs[200000000 / 8];
+uint64_t nbitfield_sgs;
 
+
+
+#include "go_17sol_commands_cpp.h"
 #include "go_17_bands_cpp.h"  
-
 #include "go_17_genb12_cpp.h"     
 #include "go_17sol_bs_cpp.h"    
-#include "go_17sol_commands_cpp.h"
+
 
 
 void Go_0() {
@@ -72,9 +75,11 @@ void Go_0() {
 		strcpy(&zn[ll], "_file1.txt");
 		fout1.open(zn);
 	}
-	if (sgo.command >= 10
-		&& sgo.command <21 && sgo.command != 15
-		&& sgo.command != 80){// input file expected
+	int need_input_file[7] = { 10,12,13,79,20,81,90 },need=0;
+	for(int i=0;i<7;i++)
+		if (sgo.command == need_input_file[i]) { need = 1; break; }
+	if (sgo.command == 0 && sgo.bfx[4] & 1) need = 1;
+	if (need){// input file expected
 		if (!sgo.finput_name) {
 			cerr << "missing input file name" << sgo.finput_name << endl; return;
 		}
@@ -87,7 +92,11 @@ void Go_0() {
 	cerr << "running command " << sgo.command << endl;
 	switch (sgo.command) {
 	case 0: Go_c17_00(); break; // search one band1
-	case 80:  Go_c17_80(); break; // enumeration test 
+	case 12: Go_c17_12(); break; // search one band1
+	case 13: Go_c17_13(); break; // search one band1
+	case 79: Go_c17_79(); break; // search bx+slice
+	case 80: Go_c17_80(); break; // enumeration
+
 	}
 	cerr << "go_0 return" << endl;
 }

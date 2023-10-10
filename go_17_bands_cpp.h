@@ -76,7 +76,7 @@ void STD_B3::InitBand3(int i16, char* ze, BANDMINLEX::PERM& p) {
 	InitBand2_3(i16, ze, p);
 	//memset(&guas, 0, sizeof guas);
 	memset(&g, 0, sizeof g);
-	poutdone = aigskip = 0;
+	poutdone=aigskip=0;
 	InitTg();// init tguam 
 	// setup minirows bit fields
 	for (int i = 0; i < 9; i++) {
@@ -85,7 +85,19 @@ void STD_B3::InitBand3(int i16, char* ze, BANDMINLEX::PERM& p) {
 		for (int j = 0; j < 3; j++)
 			minirows_bf[i] |= 1 << p[j];
 	}
+	//cout << band << " " << oct << minirows_bf[0]
+	//	<< " " << minirows_bf[1] << dec << endl;
 
+}
+
+void STD_B416::PrintStatus() {
+	cout << "band status i=" << i416 << "\tstart=" << dband << endl << "map ";
+	for (int i = 0; i < 27; i++)cout << map[i] << " ";
+	cout << endl;
+	cout << band << endl << "gangster status" << endl;
+	cout << "UAs table" << endl;
+	for (uint32_t i = 0; i < nua; i++)
+		cout << Char27out(tua[i]) << endl;
 }
 
 
