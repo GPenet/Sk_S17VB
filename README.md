@@ -7,7 +7,7 @@ A direct expansion of UAs in bands 1+2 is used
 The three pass process is modified and only bands are searched for more than 6 clues
 The entry builder is slightly modified
 
-Three text files containing the results of the search for known 17s re included.
+Three text files containing the results of the search for known 17s are included.
 
 For each known the line contains
 the found 17 grid
