@@ -1426,6 +1426,16 @@ struct GEN_BANDES_12 {// encapsulating global data
 			if (ibx[2] < ibx[0])PermB(  0, 2);
 			if (ibx[2] < ibx[1])PermB(  1, 2);
 		}
+		void MorphToB1() {
+			BandReShape(zs0, zs1, perm_ret);
+			BandReShape(&zs0[27], &zs1[27], perm_ret);
+			BandReShape(&zs0[54], &zs1[54], perm_ret);
+		}
+		void MorphToB1First() {
+			bandminlex.Getmin(zs0, &perm_ret);
+			MorphToB1();
+			memcpy(zs0, zs1, sizeof zs0);
+		}
 		void InitD(int * o) {
 			for (int i = 0; i < 81; i++)
 				zs0[i] = o[C_transpose_d[i]];
@@ -1437,16 +1447,35 @@ struct GEN_BANDES_12 {// encapsulating global data
 			ib[2] = perm_ret.i416; ibx[2] = t416_to_n6[ib[2]];
 			RigthOrder();
 		}
-
-		void MorphToB1() {
-			BandReShape(zs0, zs1, perm_ret);
-			BandReShape(&zs0[27], &zs1[27], perm_ret);
-			BandReShape(&zs0[54], &zs1[54], perm_ret);
+		void Init(int* o) {	memcpy(zs0, o, sizeof zs0);	}
+		void InitPermb1b2(int* o) {
+			memcpy(zs0, o, sizeof zs0);
+			PermB(0, 1);	MorphToB1First();	}
+		int IsBelowP1(GEN_BANDES_12& o) {
+			int ir = Compare0(o.grid0);
+			if (ir > 0) return 1; // smaller
+			if (!o.n_auto_b1) return 0;
+			for (int imorph = 0; imorph < o.n_auto_b1; imorph++) {
+				int  z[27];
+				memcpy(z, &zs0[27], sizeof z);
+				BANDMINLEX::PERM& p = o.t_auto_b1[imorph];
+				SKT_MORPHTOP
+					int ir = G17ComparedOrderedBand(&o.grid0[27], band);
+				if (ir > 1) continue;		if (ir == 1) return 1;
+				// same b2 must check b3
+				memcpy(z, &zs0[54], sizeof z);
+				{	SKT_MORPHTOP
+					if (G17ComparedOrderedBand(&o.grid0[54], band) == 1) return 1;
+				}
+			}
+			return 0;
 		}
-		void MorphToB1First() {
-			bandminlex.Getmin(zs0, &perm_ret);
-			MorphToB1();
-			memcpy(zs0, zs1, sizeof zs0);
+		int Compare0(int* o) {
+			for (int i = 0; i < 81; i++) {
+				if (o[i] > zs0[i]) return 1;
+				if (o[i] < zs0[i]) return -1;
+			}
+			return 0;
 		}
 		int Compare(int* o) {
 			for (int i = 0; i < 81; i++) {
@@ -1472,7 +1501,6 @@ struct GEN_BANDES_12 {// encapsulating global data
 			}
 			return 0;
 		}
-
 		int CheckDiag(GEN_BANDES_12& o) {
 			InitD(o.gcheck);
 			if (ibx[0] < o.ib1check) return 1;
@@ -1496,6 +1524,49 @@ struct GEN_BANDES_12 {// encapsulating global data
 			return 0;
 		}
 	}tww;
+
+	struct TWW1:TWW  {// same for pass1
+		int CheckDiagP1(GEN_BANDES_12& o) {
+			InitD(o.grid0);
+			//fout1 << o.i1t16 << " " << o.i2t16 << " " << o.i3t16 << " "
+			//	<< ibx[0] << " " << ibx[1] << " " << ibx[2] << endl;
+			if (ibx[0] < o.i3t16) return 1;
+			if (ibx[0] > o.i3t16) return 0;
+			if (ibx[1] < o.i1t16) return 1;
+			if (ibx[1] > o.i1t16) return 0;
+			if (ibx[2] < o.i2t16) return 1;
+			if (ibx[2] > o.i2t16) return 0;
+			// same both ways order in pass1 mode 
+			PermB(0, 1); PermB(1, 2);
+			MorphToB1First();
+			int ir = Compare(o.grid0);
+			if (ir > 0) return 1; // diag smaller
+			//Dump("seen equal not below");
+			return 2;
+		}
+		int IsDiagBelow(GEN_BANDES_12& o) {// same band index with auto morph
+			if (!o.n_auto_b1) return 0;
+			for (int imorph = 0; imorph < o.n_auto_b1; imorph++) {
+				int  z[27];
+				memcpy(z, &zs0[27], sizeof z);
+				BANDMINLEX::PERM& p = o.t_auto_b1[imorph];
+				SKT_MORPHTOP
+					int ir = G17ComparedOrderedBand(&o.gcheck[27], band);
+				if (ir > 1) continue;		if (ir == 1) return 1;
+				// same b2 must check b3
+				memcpy(z, &zs0[54], sizeof z);
+				{	SKT_MORPHTOP
+					if (G17ComparedOrderedBand(&o.gcheck[54], band) == 1) return 1;
+				}
+			}
+			return 0;
+		}
+		void Dump(char* const lib) {
+			for (int i = 0; i < 81; i++) cout << zs0[i] + 1;
+			cout << lib << ibx[0] << " " << ibx[1] << " " << ibx[2]	 << endl;
+		}
+
+	}tww1;
 
 
 	int GET_I81_G2(int digs, uint32_t pat) {
@@ -1555,12 +1626,6 @@ struct GEN_BANDES_12 {// encapsulating global data
 	void NewBand1(int iw);
 	int F17Novalid1_2();
 	int Band2Check();
-	int Band3CheckP2A();
-	int Band3CheckP2B();
-	int Band3CheckP1();
-	int Band3SeeDiag();
-	int Band3SeeDiagGo();
-
 	int Band3Check();
 	void Find_band2B();
 	int ValidBand2();
@@ -1571,8 +1636,8 @@ struct GEN_BANDES_12 {// encapsulating global data
 	void F3pass2_See();
 	inline void F3B_See_18();// one NED return 1 if equal not loaded
 	void F3B_See_Com();// one NED b3 first   
+	void F3B_See_NED3();// one NED b3 first   
 	int F3B_See_Com_FilterDiag(int debug=0);
-	int F3B_ChekDiag(int debug = 0);
 	void  F3B_See_Com_GetCFX();
 	int Band2_3CheckNoauto();
 	//============= loops control for UAs 5;6;7 digits collection (collect more=
