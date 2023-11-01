@@ -523,8 +523,14 @@ void Go_c17_12() {// process 17 file to get CFX mode
 	char* ze = finput.ze;
 	uint64_t npuz = 0;
 	op.ton = sgo.vx[0];
+	op.known = sgo.vx[5]; // no known if 1
 	cout << "Go_c17_12() band analysis build min bx mode "  << endl;
 	while (finput.GetLigne()) {
+		if (op.known) {// must add it for this process
+			if (strlen(ze) < 81)continue;
+			memcpy(&ze[82], ze, 81);// all is known
+			ze[163] = 0;
+		}
 		if (strlen(ze) < 163)continue;
 		if (npuz++ <sgo.vx[1])continue;
 		T12 zt12;
@@ -565,7 +571,13 @@ void Go_c17_13() {// process 17 file to get CFX mode for p1 file
 	char* ze = finput.ze;
 	uint64_t npuz = 0;
 	cout << "Go_c17_13() band analysis get CFX or P1 file"   << endl;
+	op.known = sgo.vx[5]; // no known if 1
 	while (finput.GetLigne()) {
+		if (op.known) {// must add it for this process
+			if (strlen(ze) < 81)continue;
+			memcpy(&ze[82], ze, 81);// all is known
+			ze[163] = 0;
+		}	
 		if (strlen(ze) < 163)continue;
 		if (npuz++ < sgo.vx[1])continue;
 		T12 zt12;
