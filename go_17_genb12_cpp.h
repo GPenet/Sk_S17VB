@@ -167,8 +167,10 @@ next:// erase previous fill and look for next
 		if (i2t16 < i1t16)goto next;// not canonical
 		wb1b2.ntab1b2 = wb2b1.ntab1b2 = 0;
 		int locdiag = 0;
-		if ((nb12 >> 6) == 35)locdiag = 2;
-		if ((nb12 >> 6) == 146)locdiag = 2;
+		//if (nb12  == 2257)locdiag = 2;
+		//if (nb12 == 9365)locdiag = 2;
+		//if ((nb12 >> 6) == 35)locdiag = 2;
+		//if ((nb12 >> 6) == 146)locdiag = 2;
 		if (locdiag) {
 			for (int i = 0; i < 27; i++)cout << grid0[27 + i] + 1;
 			cout << " in diag >413 slice " << (nb12 >> 6) 
@@ -205,7 +207,7 @@ next:// erase previous fill and look for next
 			}
 		}
 		if (locdiag == 2) {
-			cout << myband2.band << " call band 3" << nb12 << endl;
+			cout << myband2.band << " call band 3 for  " << nb12 << endl;
 		}
 
 		nb12++;
@@ -363,13 +365,18 @@ next:// erase previous fill and look for next
 		if (ir < 0) return; //would be bug  never seen
 		it16_3 = pband3.i416;	i3t16 = t416_to_n6[it16_3];
 		if (op.bx3 < 416 && (op.bx3 != i3t16)) goto next;
+		int locdiag = 0;
+		//if (nb12 == 2257+1)locdiag = 2;
+		//if (nb12 == 9365+1)locdiag = 2;
+		if (locdiag) fulldiag(0);
 		if (op.p1) {//Bx c<=a<=b
 			if (i3t16 > i1t16) goto next;
 			irtw2 = tww1.CheckDiagP1(*this);
-			if (irtw2 == 1 && tww1.ibx[0]>280) fulldiag(2);
+			//if (irtw2 == 1 && tww1.ibx[0]>280) fulldiag(2);
 			if (irtw2 == 1 )goto next;
 			if (F3B_See_NED3())//==1)
 				bands3[nband3++].InitBand3(it16_3, &zsol[54], pband3);
+			goto next;
 		}
 		else if (op.p2b) {//Bx a<=c<=b
 			if (i3t16 < i1t16) goto next;
@@ -377,6 +384,7 @@ next:// erase previous fill and look for next
 			irtw2 = tww1.CheckDiagP2b(*this);
 			if (irtw2 == 1)goto next;
 
+			goto next;
 		}
 		else {// op.p2a Bx a<=b<=c
 			if (i3t16 <  i2t16) goto next;
@@ -542,7 +550,8 @@ void GEN_BANDES_12::fulldiag(int mode) {
 	for (int i = 0; i < 81; i++) cout << grid0[i] + 1;
 	cout << " " << i2t16 << " " << i3t16 << "  irtw2=" << irtw2
 		<< " in diag  wb2b1.ntab1b2=" << wb2b1.ntab1b2
-		<< "  wb1b2.ntab1b2=" << wb1b2.ntab1b2 << endl;
+		<< "  wb1b2.ntab1b2=" << wb1b2.ntab1b2
+		<< " slice "<< (nb12 >> 6) << " mode="<<mode << endl;
 	if (!mode)return;
 	tww1.Dump(" diag status");
 
@@ -568,6 +577,25 @@ void GEN_BANDES_12::fulldiag(int mode) {
 int GEN_BANDES_12::F3B_See_NED1() {// pass 2a a<=b<=c
 	if (i3t16 == i2t16 && grid0[27] != 1) return 0;
 	if (i1t16 < i2t16 && i2t16 < i3t16 && (!n_auto_b1))  return 1;
+	if (i1t16 == i3t16) {//	three bands = 
+		for (int i = 0; i <= 5; i++) 
+			if (tww2.IsBelowMoreP2a(*this, grid0, i))return 0;
+		if (1) {
+			fout1 << "diag irtw2=" << irtw2 << endl;
+			tww2.IsBelowMoreP2a(*this, grid0, 0);
+			for (int i = 0; i < 81; i++) fout1 << tww2.zs0[i] + 1;
+			fout1 << "cab" << endl;
+			tww2.DumpP1("cab");
+			tww2.IsBelowMoreP2a(*this, grid0, 1);
+			tww2.DumpP1("cba");
+			for (int i = 0; i < 81; i++) fout1 << tww2.zs0[i] + 1;
+			fout1 << "cba" << endl;
+		}
+		if (irtw2 != 2) return 1;
+		for (int i = 0; i <= 5; i++)
+			if (tww2.IsBelowMoreP2a(*this, tww1.zs0, i))return 0;
+		return 1;
+	}
 	tww.Init(grid0);
 	int locdiag = 0;
 	//if ((nb12 >> 6) == 1357 && i3t16 == i2t16) locdiag = 2;
@@ -583,55 +611,81 @@ int GEN_BANDES_12::F3B_See_NED1() {// pass 2a a<=b<=c
 				tww2.IsBelowMoreP2a(*this, tww1.zs0, 3))return 0;
 		}
 	}
-	else {// three bands = worst case  
-		for (int i = 0; i <= 3; i++)// 
-			if (tww2.IsBelowMoreP2a(*this, grid0, i))return 0;
-		if (locdiag == 2)	cout << "in diag 3x a1" << endl;
-		if (irtw2 == 2) {
-			if (locdiag == 2)cout << " 3x both sides"<<endl;
-			for (int i = 0; i <= 5; i++)
-				if (tww2.IsBelowMoreP2a(*this, tww1.zs0, i))return 0;
-		}
-		return 1;
-	}		
+	//else {// three bands = worst case  
+		//for (int i = 0; i <= 3; i++)// 
+			//if (tww2.IsBelowMoreP2a(*this, grid0, i))return 0;
+		//if (locdiag == 2)	cout << "in diag 3x a1" << endl;
+		//if (irtw2 == 2) {
+			//if (locdiag == 2)cout << " 3x both sides"<<endl;
+			//for (int i = 0; i <= 5; i++)
+				//if (tww2.IsBelowMoreP2a(*this, tww1.zs0, i))return 0;
+		//}
+		//return 1;
+	//}		
 	return 1;
 }
 
 int GEN_BANDES_12::F3B_See_NED3() {// // pass 1 c<=a<=b 
 	int locdiag = 0;
-	if ((nb12 >> 6) == 35) locdiag = 2;
-	if ((nb12 >> 6) == 146) locdiag = 2;
-	if (locdiag == 2) fulldiag(1);
+	//if (wb2b1.ntab1b2) locdiag = 2;
+	//if (i3t16== i2t16)locdiag = 2;
+	//if ((nb12 >> 6) == 35) locdiag = 2;
+	//if (locdiag == 2) fulldiag(0);
 	if (i3t16 < i1t16 && i1t16 < i2t16) {
-		if (!wb1b2.ntab1b2) return 2;
-		if (wb1b2.Check3(&grid0[54], &grid0[54]) > 1) return 0;
+		if (wb1b2.ntab1b2 && wb1b2.Check3(&grid0[54], &grid0[54]) > 1) return 0;
 		if (!irtw2) return 2;
-		tww2.PushP1ToMinimal(*this, tww1.zs0, 5);//no  perm 
-		if (wb1b2.Check3(&tww2.zs0[54], &grid0[54]) > 1) return 0;
+		tww.PushP1ToMinimal(*this, grid0);// expected min
+		tww2.PushP1ToMinimal(*this, tww1.zs0, 0);//no  perm 
+		if (tww.Compare(tww2.zs0) < 0) return 0;
+		// possible automorphs band1??? 
+		//if (wb1b2.Check3(&tww2.zs0[54], &grid0[54]) > 1) return 0;
 		return 1;
 	}
-
-	tww.Init(grid0);
+	tww.Init(grid0); // check auto morphs direct 
 	if (tww.IsBelowP1(*this)) return 0;
-	if (i1t16 == i3t16) {// i3t16;i1t16 must be minimal
-		tww.PushP1ToMinimal(*this, grid0);// expected min
-		tww2.PushP1ToMinimal(*this, grid0, 1);// perm 
-		if (tww.Compare(tww2.zs0) < 0) return 0;
-		if (i2t16 == i3t16) {// same 3 bands, more perms to see 
-			if (tww.Compare(grid0) < 0) return 0;
-			for (int i = 2; i <= 4; i++) {
-				tww2.PushP1ToMinimal(*this, grid0, i);// perm 
-				if (tww.Compare(tww2.zs0) < 0) return 0;
+
+	if (i2t16 == i3t16) {// same 3 bands, more perms to see 
+		// first get minimal can be abc=> cab or cba  or acb or bca
+		int grid1[81], mint = 0; grid1[0] = 10;
+		for (int i = 0; i < 2; i++) {
+			tww2.PushP1ToMinimal(*this, grid0, i);// perm 
+			int ir = tww2.Compare0(grid1);
+			if (ir > 0) {
+				mint = 1 << i; 
+				memcpy(grid1, tww2.zs0, sizeof grid1);
 			}
-			if (irtw2)for (int i = 0; i < 6; i++) {
-				tww2.PushP1ToMinimal(*this, tww1.zs0, i);// perm 
-				if (tww.Compare(tww2.zs0) < 0) return 0;
-			}
-			return 1;
+			else if (ir == 0)mint |= 1 << i; 
 		}
+		for (int i = 0; i < 81; i++) {
+			if (grid0[i] > grid1[i]) break; 
+			if (grid0[i] < grid1[i]) return 0;
+		}
+		for (int i = 2; i <= 4; i++) {
+			tww2.PushP1ToMinimal(*this, grid0, i);// perm 
+			if (tww2.Compare0(grid1) > 0)  return 0;
+		}
+		if (irtw2)for (int i = 0; i < 6; i++) {
+			tww2.PushP1ToMinimal(*this, tww1.zs0, i);// perm 
+			if (tww2.Compare0(grid1) > 0)  return 0;
+		}
+		if (mint == 2 && wb2b1.ntab1b2 ) return 0;
+		//if (locdiag == 2) {
+			//for (int i = 0; i < 81; i++) cout << grid1[i] + 1;
+			//cout << "MIN tye" << mint << endl;
+		//}
+		return 1;
+	}
+	if (i1t16 == i3t16) {// i3t16;i1t16 must be minimal
+		// i2t16 is highest min  can be 0/cab or 2/acb 
+		tww.PushP1ToMinimal(*this, grid0);// expected min
+		tww2.PushP1ToMinimal(*this, grid0, 2);// perm  acb
+		if (tww.Compare(tww2.zs0) < 0) return 0;
 		if (irtw2 == 2) {	// tww1 is in pass 1 mode
 			cout << "i1t16 == i3t16 and irtw2 == 2" << endl;
-			//if (tww1.IsBelowP1(*this)) return 0;
+			tww2.PushP1ToMinimal(*this, tww2.zs0, 2);// perm  acb
+			if (tww.Compare(tww2.zs0) < 0) return 0;
+			tww2.PushP1ToMinimal(*this, tww2.zs0);// perm  cab
+			if (tww.Compare(tww2.zs0) < 0) return 0;
 		}
 		return 1;
 	}

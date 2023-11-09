@@ -1503,11 +1503,10 @@ struct GEN_BANDES_12 {// encapsulating global data
 			memcpy(zs0, g, sizeof zs0);
 			switch (mode) { //abc => 
 			case 0:PermB(0, 2); PermB(1, 2); break;//cab
-			case 1:PermB(1, 2); break; // acb 
-				// here 3x same Bx
-			case 2:PermB(0,1); break; // bac 
+			case 1: PermB(0, 2);  break; // cba 
+			case 2:PermB(1, 2); break; // acb 
 			case 3: PermB(1, 2); PermB(0, 2); break; // bca 
-			case 4: PermB(0, 2);  break; // cba 
+			case 4:PermB(0, 1); break; // bac 
 			case 5:break;// do nothing
 			}
 			MorphToB1First();// zs1 is also morphed
