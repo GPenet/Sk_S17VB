@@ -111,9 +111,22 @@ void BandReOrder(int* d) {
 		memcpy(&d[18], temp, sizeof temp);
 	}
 }
+int BandCompare(int* a, int* b) {
+	for (int i = 0; i < 27; i++) {
+		if (a[i] > b[i]) return 1;
+		if (a[i] < b[i]) return -1;
+	}
+	return 0;
 
-
-
+}
+void BandDump(int* a, char * lib) {
+	for (int i = 0; i < 27; i++) cout << a[i] + 1;
+	cout << " " << lib << endl;
+}
+void GridDump(int* a, char* lib) {
+	for (int i = 0; i < 81; i++) cout << a[i] + 1;
+	cout << " " << lib << endl;
+}
 void Go_c17_00( ) {// p2 process
 	cout << "Go_c17_00 search batch 17/18 clues  " << endl;
 	op.SetUp(0);
@@ -664,6 +677,10 @@ void Go_c17_80() {// enumeration test
 	op.b2 = sgo.vx[5];
 	op.bx3 = sgo.vx[11];
 	op.out_entry = op.ton;
+	op.test_ned = sgo.bfx[5];
+	if (!op.test_ned)op.test_ned = 63;// take all good in NED
+	cout << op.test_ned << "  option de test pout entrée" << endl;
+
 	int x = (int)sgo.vx[4];
 	if (x == 2) op.p1 = 1;
 	else {
