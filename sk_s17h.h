@@ -62,7 +62,7 @@ struct OPCOMMAND {// decoding command line option for this rpocess
 
 		if (sgo.bfx[2] & 1) out_one = 1;
 		if (sgo.bfx[2] & 2) out_entry = 1;
-		if(out_entry && op.ton==5)out_entry = -1;
+		if(out_entry && ton==5)out_entry = -1;
 		if (known)if (sgo.bfx[2] & 4) known = 2;
 		if (p) {
 			cout << Char9out(sgo.bfx[0]) << " sgo.bfx[0 " << endl;
@@ -102,7 +102,7 @@ struct OPCOMMAND {// decoding command line option for this rpocess
 			if (upto3)cout << "upto debugging [3]  sgo.bfx[1] & 1 " << endl;
 			if (upto4)cout << "upto debugging [4]  sgo.bfx[1] & 2 " << endl;
 			if (dv3)cout << " -b1-...x print fresh adds " << endl;
-			cout << op.test_ned << "  option de test pout entrée" << endl;
+			cout << test_ned << "  option de test pout entrée" << endl;
 		}
 	}
 	void SetUp79() {// init 
@@ -1438,27 +1438,6 @@ struct GEN_BANDES_12 {// encapsulating global data
 			}
 			return 0;
 		}
-		int CheckP1(GEN_BANDES_12& o) {
-			int* z = &z0[27];
-			for (int imorph = 0; imorph < o.n_auto_p1; imorph++) {
-				BANDMINLEX::PERM& p = o.t_auto_p1[imorph];
-				SKT_MORPHTOP
-					int ir = G17ComparedOrderedBand(&o.grid1[27], band);
-				if (ir > 1) continue;		if (ir == 1) return 1;
-				tab1b2[ntab1b2++] = p;
-			}
-			return 0;
-		}
-		int  Initb2b1P1(GEN_BANDES_12& o) {
-			memcpy(z0, o.grid1, sizeof z0);
-			BANDMINLEX::PERM  p ;
-			bandminlex.Getmin(&z0[27], &p);
-			int zt[27];
-			BandReShape(z0, zt, p);
-			memcpy(&z0[27], zt, sizeof zt);
-			return  Compare54(o.grid1);
-		}
-
 		int  Initb2b1(GEN_BANDES_12& o) {
 			memcpy(z0, o.grid0, sizeof z0);
 			BANDMINLEX::PERM& p = o.pband2;
@@ -1476,7 +1455,6 @@ struct GEN_BANDES_12 {// encapsulating global data
 			}
 			return 0;
 		}
-		int Diag3(int* z);
 	}wb1b2,wb2b1;
 
 	struct TWW {
@@ -1570,40 +1548,11 @@ struct GEN_BANDES_12 {// encapsulating global data
 			MorphToB1First();// zs1 is also morphed
 			memcpy(o.grid1, zs1, sizeof zs0);
 		}
-		void PushP1ToMinimal(GEN_BANDES_12 &o,int * g,int mode=0) {
-			memcpy(zs0, g, sizeof zs0);
-			switch (mode) { //abc => 
-			case 0:PermB(0, 2); PermB(1, 2); break;//cab
-			case 1: PermB(0, 2);  break; // cba 
-			case 2:PermB(1, 2); break; // acb 
-			case 3: PermB(1, 2); PermB(0, 2); break; // bca 
-			case 4:PermB(0, 1); break; // bac 
-			case 5:break;// do nothing
-			}
+		void MorphToP2b(GEN_BANDES_12& o) {
+			memcpy(zs0, o.grid0, sizeof zs0);
+			PermB(1, 2);//now acb
 			MorphToB1First();// zs1 is also morphed
-			if (!o.n_auto_p1) return ;
-			for (int imorph = 0; imorph < o.n_auto_p1; imorph++) {
-				BANDMINLEX::PERM& p = o.t_auto_p1[imorph];
-				int* z = &zs0[27];// morph the band
-				SKT_MORPHTOP
-					int ir = G17ComparedOrderedBand(&zs1[27], band);
-				if (ir > 1) continue;		
-				if (ir == 1) {// new mini save and morph b3
-					BandReOrder(band);
-					memcpy(&zs1[27], band, sizeof band);
-					BandReShape(&zs0[54], &zs1[54], p);
-					continue;
-				}
-				else {	// same b1b2 must check b3
-					int* z = &zs0[54];// morph the band
-					SKT_MORPHTOP
-					if (G17ComparedOrderedBand(&zs1[54], band) > 1)	{
-						BandReOrder(band);
-						memcpy(&zs1[54], band, sizeof band);
-					}
-				}
-			}
-			memcpy(zs0, zs1, sizeof zs0);
+			memcpy(o.grid1, zs1, sizeof zs0);
 		}
 		int IsBelowGrid1(GEN_BANDES_12& o, int* g, int mode = 0, int debug = 0) {
 			if (debug) cout << " is below p1 in debuggging mode" << endl;
@@ -1616,6 +1565,7 @@ struct GEN_BANDES_12 {// encapsulating global data
 			case 3: PermB(0, 2);  break; // cba 
 			case 4: PermB(1, 2); PermB(0, 2); break; // bca 
 			case 5:break;// do nothing
+			case 6:PermB(1, 2); PermB(0, 1); break;// bac on diag p2a
 			}
 			MorphToB1First();// zs1 is also morphed
 			if (debug)DumpP1("after morph");
@@ -1778,12 +1728,8 @@ struct GEN_BANDES_12 {// encapsulating global data
 			// same both ways order in pass1 mode 
 			PermB(0, 1); PermB(1, 2);
 			MorphToB1First();
-			int ir = Compare(o.grid0);
-			if (ir > 0) return 1; // diag smaller
-			//Dump("seen equal not below");
 			return 2;
 		}
-		int CheckDiagP1More_abc();
 		int CheckDiagP2a();
 		int CheckDiagP2aMore_abc();
 		int CheckDiagP2b(GEN_BANDES_12& o) {
@@ -1797,9 +1743,6 @@ struct GEN_BANDES_12 {// encapsulating global data
 			// same both ways order in pass1 mode 
 			PermB(1, 2);
 			MorphToB1First();
-			int ir = Compare(o.grid0);
-			if (ir > 0) return 1; // diag smaller
-			//Dump("seen equal not below");
 			return 2;
 		}
 		void Dump(char* const lib) {
@@ -1867,23 +1810,16 @@ struct GEN_BANDES_12 {// encapsulating global data
 	void Start(int mode = 0);
 	void NewBand1(int iw);
 	int F17Novalid1_2();
-	int Band2Check();
-	//int Band3Check();
 	void Find_band2B();
 	int ValidBand2();
 	void ValidInitGang();
 	void Find_band3B(int m10 = 1);;
 	void OutEntry();
-	void F3pass2_See();
-	inline void F3B_See_18();// one NED return 1 if equal not loaded
 	int F3B_See_NED1();// pass p2a   
 	int F3B_See_NED2();// pass p2b   
 	int F3B_See_NED3();// pass 1   
-	int NED3_Build_Check_Morphs(int locdiag);   
-
-	void fulldiag(int mode );
-	int fulldiagbug();
-	int fulldiagbugP1();
+	int NED2_Build_Check_Morphs();
+	int NED3_Build_Check_Morphs();
 
 	//============= loops control for UAs 5;6;7 digits collection (collect more=
 	int iband, ibox, iminirow, ibox2, iminirow2, pat1, pat2, ncells;
