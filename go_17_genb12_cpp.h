@@ -35,7 +35,8 @@ void GEN_BANDES_12::NewBand1(int iw) {
 	memcpy(coldf, cold, sizeof coldf);
 	zsol[27] = 0;
 	if(op.ton)	cout << myband1.band << "i1t16=" << i1t16 << " it16=" 
-		<< it16		<< " n auto morphs=" << n_auto_b1 << endl;
+		<< it16		<< " n auto morphs=" << n_auto_b1 
+		<<" mode b12="<<modeb12 << endl;
 
 	ntc = 0;
 	BitsInTable32(tc, ntc, cold[0]);// first col 6 digits in table

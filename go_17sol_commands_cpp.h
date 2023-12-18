@@ -616,6 +616,7 @@ void Go_c17_79() {// check fully known
 	memset(p_cpt2g, 0, sizeof p_cpt2g);// used in debugging sequences only
 	op.SetUp79();
 	op.ton = sgo.vx[2];
+	op.test_ned = 63;
 	int x = (int)sgo.vx[4];
 	if (x == 2) op.p1 = 1;
 	else {	op.p2 = 1; if (x == 1) op.p2b = 1;	}

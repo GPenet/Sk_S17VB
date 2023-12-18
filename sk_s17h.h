@@ -1554,8 +1554,7 @@ struct GEN_BANDES_12 {// encapsulating global data
 			MorphToB1First();// zs1 is also morphed
 			memcpy(o.grid1, zs1, sizeof zs0);
 		}
-		int IsBelowGrid1(GEN_BANDES_12& o, int* g, int mode = 0, int debug = 0) {
-			if (debug) cout << " is below p1 in debuggging mode" << endl;
+		int IsBelowGrid1(GEN_BANDES_12& o, int* g, int mode = 0) {
 			memcpy(zs0, g, sizeof zs0);
 			switch (mode) { //abc => 
 			case 0:PermB(1, 2); break; // acb  Bx2=Bx3
@@ -1568,7 +1567,6 @@ struct GEN_BANDES_12 {// encapsulating global data
 			case 6:PermB(1, 2); PermB(0, 1); break;// bac on diag p2a
 			}
 			MorphToB1First();// zs1 is also morphed
-			if (debug)DumpP1("after morph");
 			if (Compare(o.grid1) > 0) return 1;
 			if (!o.n_auto_p1) return 0;
 			for (int imorph = 0; imorph < o.n_auto_p1; imorph++) {
@@ -1576,21 +1574,18 @@ struct GEN_BANDES_12 {// encapsulating global data
 				int* z = &zs0[27];// morph the band
 				SKT_MORPHTOP
 					int ir = G17ComparedOrderedBand(&zs1[27], band);
-				if (debug) cout << "imorph  ir" << imorph << " " << ir << endl;
 				if (ir > 1) continue;
 				if (ir == 1) {// new mini save and morph b3
 					BandReOrder(band);
 					memcpy(&zs1[27], band, sizeof band);
 					if (Compare54(o.grid1) > 0) return 10 + imorph;
 				}
-				if (debug) cout << "xxx" << endl;
-
 				BandReShape(&zs0[54], &zs1[54], p);
 				if (Compare(o.grid1) > 0) return 20 + imorph;
 			}
 			return 0;
 		}
-		int IsBelowMoreP2a(GEN_BANDES_12& o, int* g, int mode, int debug = 0) {
+		int IsBelowMoreP2a(GEN_BANDES_12& o, int* g, int mode) {
 			memcpy(zs0, g, sizeof zs0);
 			switch (mode) { //abc =>  abc bac acb done direct
 			case 0:PermB(0, 2); PermB(1, 2); break;//cab
@@ -1601,35 +1596,27 @@ struct GEN_BANDES_12 {// encapsulating global data
 			}
 			MorphToB1First();// zs1 is also morphed
 			if (Compare(o.grid0) > 0) return 1;
-			if (debug)DumpP1("after morph");
 			if (!o.n_auto_b1) return 0;
 			for (int imorph = 0; imorph < o.n_auto_b1; imorph++) {
 				BANDMINLEX::PERM& p = o.t_auto_b1[imorph];
 				int* z = &zs0[27];// morph the band
 				SKT_MORPHTOP
 					int ir = G17ComparedOrderedBand(&zs1[27], band);
-				if (debug) cout << "imorph  ir" << imorph << " " << ir << endl;
 				if (ir > 1) continue;
 				if (ir == 1) {// new mini save and morph b3
 					BandReOrder(band);
 					memcpy(&zs1[27], band, sizeof band);
 					if (Compare54(o.grid0) > 0) return 10+imorph;
 				}
-				if (debug) cout << "xxx"  << endl;
 				BandReShape(&zs0[54], &zs1[54], p);
 				if (Compare(o.grid0) > 0) return 20 + imorph;
 			}
 			return 0;
 		}
-		int IsBelowP1(GEN_BANDES_12& o,int debug=0) {
+		int IsBelowP1(GEN_BANDES_12& o) {
 			int ir = Compare0(o.grid0);
 			if (ir > 0) return 1; // smaller
 			if (!o.n_auto_b1) return 0;
-			if (debug) {
-				for (int i = 0; i < 81; i++) cout << o.grid0[i] + 1;
-				cout << " nauto=" << o.n_auto_b1 << endl;
-				DumpP1(" dump p1 first ");
-			}
 			for (int imorph = 0; imorph < o.n_auto_b1; imorph++) {
 				int  z[27];
 				memcpy(z, &zs0[27], sizeof z);
