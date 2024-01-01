@@ -1783,6 +1783,7 @@ void G17B::Go_x_11_17() {// 8 clues limit 11 clues 656 566
 			myb12 = bf3;
 			guah54n.GetG2G3_10(myb12, tclx[3]);
 			CALLB3(10, 7);
+			if (op.p1) continue; //max 10 clues in bands 1+2 in p1
 			uint64_t Ac4 = Ac3;
 			{
 				register uint64_t F = myb12 & BIT_SET_27;
