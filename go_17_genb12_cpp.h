@@ -158,13 +158,14 @@ int GEN_BANDES_12::ValidBand2() {
 			if (w == 0) {
 				long tfin = GetTimeMillis();
 				if ((w1 > op.last)) return 1;
-				cout << "new slice =\t" << w1 << "\tmil=" << (tfin - sgo.tdeb) / 1000
+				if(op.opcode!=79)
+					cout << "new slice =\t" << w1 << "\tmil=" << (tfin - sgo.tdeb) / 1000
 					<< "\tnb2=" << p_cpt2g[0] << "\tnb3=" << p_cpt2g[1] << endl;
 			}
 		}
 		if ((nb12 >> 6) > op.last) return 1;
+		if (op.b2 < 416 && (t416_to_n6[it16_2] != op.b2)) return 0;
 		ValidInitGang();// also called from existing 17 in test
-		if(F17Novalid1_2())return 0;
 		Find_band3B();
 		return 0;
 	}

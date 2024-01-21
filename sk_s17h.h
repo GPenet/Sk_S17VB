@@ -107,7 +107,7 @@ struct OPCOMMAND {// decoding command line option for this rpocess
 	}
 	void SetUp79() {// init 
 		memset(this, 0, sizeof * this);
-		opcode = 0;
+		opcode = 79;
 	}
 }op;
 #define UACNBLOCS 15
@@ -1822,7 +1822,7 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	G17B();// initial tasks all commands
 	int b3lim,	 aigstop, aigstopxy,nb3_not_found,knownt,
 		npuz, a_17_found_here ;
-	int  b1maxcl, b2maxcl,b1max11;
+	int  b1maxcl, b2maxcl , b2maxcl11;
 	int ng2,ng3;
 	int grid0[81];
 
